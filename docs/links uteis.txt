@@ -1,0 +1,5 @@
+# Como compartilhar dependências entre serviços
+    - https://dev.to/zergon321/microservices-with-go-modules-37gc
+
+# Como implementar um novo serviço utilizando go kit e gRPC
+    - https://dev.to/junereycasuga/go-grpc-with-go-kit-3gab
