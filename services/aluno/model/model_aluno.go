@@ -12,8 +12,8 @@ type Aluno struct {
 type Repository interface {
 	Create(ctx context.Context, alu Aluno) (bool, error)
 	Alter(ctx context.Context, alu Aluno) (bool, error)
-	Get(ctx context.Context, id uint64) (Aluno, error)
+	Get(ctx context.Context, ra string) (Aluno, error)
 	GetAll(ctx context.Context, page uint32) ([]Aluno, error)
-	Delete(ctx context.Context, id uint64) (bool, error)
+	Delete(ctx context.Context, ra string) (bool, error)
 	StatusService(ctx context.Context) (bool, error)
 }

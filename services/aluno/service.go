@@ -13,11 +13,11 @@ type Service interface {
 	//Alter: Altera um aluno existente
 	Alter(ctx context.Context, alu model.Aluno) (bool, error)
 	//Get: Obtém um aluno específico
-	Get(ctx context.Context, id uint64) (model.Aluno, error)
+	Get(ctx context.Context, ra string) (model.Aluno, error)
 	//GetAll: Obtém uma lista de 10 alunos iniciado do parametro page passado
 	GetAll(ctx context.Context, page uint32) ([]model.Aluno, error)
 	//Delete: Deleta um aluno específico
-	Delete(ctx context.Context, id uint64) (bool, error)
+	Delete(ctx context.Context, ra string) (bool, error)
 	//StatusService: status do serviço, serve para verificar se o serviço está funcionando
 	StatusService(ctx context.Context) (bool, error)
 }

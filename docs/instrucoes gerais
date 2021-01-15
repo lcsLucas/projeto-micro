@@ -1,0 +1,10 @@
+### Instruções para iniciar o desenvolvimento de um novo serviço ###
+	1º: Definir a interface do service
+	2º: Criar a struct do service com os metodos da interface definidos.
+	3º: Criar o model do serviço
+	4º: Criar a interface do Repositório do serviço
+	5º: Criar a struct do repositório do servico com os metodos da interface definidos.
+
+### Como criar um novo container docker para o mongodb
+	- Executar em um terminal esse comando (o terminal deve está aponta para a pasta raiz do projeto):
+		- docker run -it -v ./data/mongodb:/data/db -p 27017:27017 -d --name micro-mongo mongo

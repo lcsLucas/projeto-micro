@@ -3,16 +3,32 @@ package main
 import (
 	"context"
 	"flag"
+	"fmt"
+	"net"
 	"os"
+	"os/signal"
 	"strconv"
+	"syscall"
+
+	"github.com/lcslucas/projeto-micro/services/aluno/proto"
+	"github.com/lcslucas/projeto-micro/services/aluno/repository"
+
+	"github.com/lcslucas/projeto-micro/config"
+	"github.com/lcslucas/projeto-micro/services/aluno"
+	"github.com/lcslucas/projeto-micro/services/aluno/endpoints"
+	"github.com/lcslucas/projeto-micro/services/aluno/transport"
+	"google.golang.org/grpc"
+
+	"github.com/lcslucas/projeto-micro/services/aluno/migrations"
 
 	"github.com/go-kit/kit/log"
 	"github.com/go-kit/kit/log/level"
+	kitgrpc "github.com/go-kit/kit/transport/grpc"
 
-	database "github.com/lcslucas/micro-service/database/mongodb"
+	database "github.com/lcslucas/projeto-micro/database/mongodb"
 
 	"github.com/joho/godotenv"
-	"github.com/lcslucas/projeto-micro/config"
+
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
@@ -21,8 +37,8 @@ var configDB config.ConfigDB
 
 var logger log.Logger
 
-var host_grpc_alu string
-var port_grpc_alu int
+var hostGrpcAlu string
+var portGrpcAlu int
 
 func inicializeLogger() {
 	logger = log.NewLogfmtLogger(os.Stderr)
@@ -49,8 +65,8 @@ func inicializeVars() error {
 		DBName:   os.Getenv("ALU_DB_NAME"),
 	}
 
-	host_grpc_alu = os.Getenv("ALU_GRPC_HOST")
-	port_grpc_alu, _ = strconv.Atoi(os.Getenv("ALU_GRPC_PORT"))
+	hostGrpcAlu = os.Getenv("ALU_GRPC_HOST")
+	portGrpcAlu, _ = strconv.Atoi(os.Getenv("ALU_GRPC_PORT"))
 
 	return nil
 }
@@ -62,7 +78,7 @@ func inicializeDB(ctx context.Context) error {
 	}
 
 	conn = newConn
-	return nil
+	return migrations.ExecMigrationAlunos(ctx, configDB.DBName, conn)
 }
 
 func main() {
@@ -72,7 +88,6 @@ func main() {
 	//* Inicializando Logger *//
 	inicializeLogger()
 
-	level.Info(logger).Log("msg", "service 'Aluno' started")
 	defer level.Info(logger).Log("msg", "service 'Aluno' ended")
 	flag.Parse()
 	//* Inicializando Logger *//
@@ -88,8 +103,49 @@ func main() {
 	err = inicializeDB(ctx)
 	if err != nil {
 		level.Error(logger).Log("exit", err)
-		defer conn.Disconnect(ctx)
 	}
+	defer conn.Disconnect(ctx)
 	//* Inicializando Conexão com o banco de dados *//
 
+	//* Inicializando Conexão gRPC do serviço Aluno *//
+	var service aluno.Service
+	{
+		repository := repository.NewRepository(conn, logger, configDB)
+		service = aluno.NewService(repository, logger)
+	}
+
+	var (
+		eps        = endpoints.NewEndpointSet(service)
+		grpcServer = transport.NewGrpcServer(eps)
+	)
+
+	grpcListener, err := net.Listen("tcp", fmt.Sprintf("%s:%d", hostGrpcAlu, portGrpcAlu))
+	if err != nil {
+		logger.Log("transport", "gRPC", "during", "listen", "err", err)
+		os.Exit(1)
+	}
+	defer grpcListener.Close()
+
+	level.Info(logger).Log("msg", fmt.Sprintf("serviço 'Aluno' inicializado em: %s:%d", hostGrpcAlu, portGrpcAlu))
+
+	go func() {
+		baseServer := grpc.NewServer(grpc.UnaryInterceptor(kitgrpc.Interceptor))
+		proto.RegisterServiceAlunoServer(baseServer, grpcServer)
+		err = baseServer.Serve(grpcListener)
+		if err != nil {
+			logger.Log("transport", "gRPC", "during", "listen", "err", "Fatal to serve:", hostGrpcAlu, portGrpcAlu, ":", err)
+			os.Exit(1)
+		}
+	}()
+	//* Inicializando Conexão gRPC do serviço Aluno *//
+
+	//* Notifica o programa quando for encerrado *//
+	errs := make(chan error)
+	go func() {
+		c := make(chan os.Signal, 1)
+		signal.Notify(c, syscall.SIGINT, syscall.SIGTERM)
+		errs <- fmt.Errorf("%s", <-c)
+	}()
+
+	level.Error(logger).Log("exit", <-errs)
 }

@@ -14,7 +14,7 @@ type CreateAlterResponse struct {
 }
 
 type GetRequest struct {
-	ID uint64 `json:"id"`
+	RA string `json:"ra"`
 }
 
 type GetResponse struct {
@@ -34,7 +34,7 @@ type GetAllResponse struct {
 }
 
 type DeleteRequest struct {
-	ID uint64 `json:"id"`
+	RA string `json:"ra"`
 }
 
 type DeleteResponse struct {

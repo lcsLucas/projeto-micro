@@ -1,0 +1,26 @@
+# docker-compose up -> cria os container e dá o start neles
+# docker-compose down --rmi 'all' -> para todos os containers que estão em execução e remove eles e suas imagens
+# docker-compose stop usuarios -> parar um serviço 
+# docker-compose up --force-recreate --no-deps --build usuarios -> rebuild do serviço e subi-lo novamente, separados dos outros
+
+version: '3.0'
+services: 
+  mongo:
+    image: mongo:latest
+    container_name: micro-mongo
+    restart: always
+    command: [--auth]
+    networks: 
+      - net-micro
+    environment: 
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: root
+      MONGO_INITDB_DATABASE: root-db
+    ports: 
+      - 27017:27017
+    volumes: 
+      - ./data/mongodb:/data/db
+      - ./docker-entrypoint-initdb.d/mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
+networks:
+  net-micro:
+    external: true

@@ -34,7 +34,7 @@ message CreateAlterResponse {
 }
 
 message GetRequest {
-    uint64 id = 1;
+    string ra = 1;
 }
 
 message GetResponse {
@@ -48,13 +48,13 @@ message GetAllRequest {
 }
 
 message GetAllResponse {
-    repeated Aluno alunos = 1;
-    bool status = 2;    
-    string error = 3;
+    bool status = 1;    
+    string error = 2;
+    repeated Aluno alunos = 3;
 }
 
 message DeleteRequest {
-    uint64 id = 1;
+    string ra = 1;
 }
 
 message DeleteResponse {

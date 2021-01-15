@@ -68,7 +68,7 @@ func MakeAlterEndpoint(s aluno.Service) endpoint.Endpoint {
 func MakeGetEndpoint(s aluno.Service) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
 		req := request.(GetRequest)
-		alu, err := s.Get(ctx, req.ID)
+		alu, err := s.Get(ctx, req.RA)
 		if err != nil {
 			return GetResponse{
 				Aluno:  model.Aluno{},
@@ -108,7 +108,7 @@ func MakeGetAllEndpoint(s aluno.Service) endpoint.Endpoint {
 func MakeDeleteEndpoint(s aluno.Service) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
 		req := request.(DeleteRequest)
-		_, err := s.Delete(ctx, req.ID)
+		_, err := s.Delete(ctx, req.RA)
 		if err != nil {
 			return DeleteResponse{
 				Status: false,

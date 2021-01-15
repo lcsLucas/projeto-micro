@@ -55,7 +55,7 @@ func NewGrpcServer(ep endpoints.Set) proto.ServiceAlunoServer {
 }
 
 func (g *grpcServer) Create(ctx context.Context, r *proto.CreateAlterRequest) (*proto.CreateAlterResponse, error) {
-	_, res, err := g.get.ServeGRPC(ctx, r)
+	_, res, err := g.create.ServeGRPC(ctx, r)
 	if err != nil {
 		return nil, err
 	}
@@ -137,7 +137,7 @@ func decodeGrpcAlterRequest(_ context.Context, grpcReq interface{}) (interface{}
 func decodeGrpcGetRequest(_ context.Context, grpcReq interface{}) (interface{}, error) {
 	req := grpcReq.(*proto.GetRequest)
 	return endpoints.GetRequest{
-		ID: req.Id,
+		RA: req.Ra,
 	}, nil
 }
 
@@ -151,7 +151,7 @@ func decodeGrpcGetAllRequest(_ context.Context, grpcReq interface{}) (interface{
 func decodeGrpcDeleteRequest(_ context.Context, grpcReq interface{}) (interface{}, error) {
 	req := grpcReq.(*proto.DeleteRequest)
 	return endpoints.DeleteRequest{
-		ID: req.Id,
+		RA: req.Ra,
 	}, nil
 }
 
@@ -162,26 +162,26 @@ func decodeGrpcStatusServiceRequest(_ context.Context, grpcReq interface{}) (int
 /* Responses */
 
 func decodeGrpcCreateResponse(_ context.Context, grpcRes interface{}) (interface{}, error) {
-	res := grpcRes.(*proto.CreateAlterResponse)
-	return endpoints.CreateAlterResponse{
+	res := grpcRes.(endpoints.CreateAlterResponse)
+	return &proto.CreateAlterResponse{
 		Status: res.Status,
 		Error:  res.Error,
 	}, nil
 }
 
 func decodeGrpcAlterResponse(_ context.Context, grpcRes interface{}) (interface{}, error) {
-	res := grpcRes.(*proto.CreateAlterResponse)
-	return endpoints.CreateAlterResponse{
+	res := grpcRes.(endpoints.CreateAlterResponse)
+	return &proto.CreateAlterResponse{
 		Status: res.Status,
 		Error:  res.Error,
 	}, nil
 }
 
 func decodeGrpcGetResponse(_ context.Context, grpcRes interface{}) (interface{}, error) {
-	res := grpcRes.(*proto.GetResponse)
-	return endpoints.GetResponse{
-		Aluno: model.Aluno{
-			RA:      res.Aluno.Ra,
+	res := grpcRes.(endpoints.GetResponse)
+	return &proto.GetResponse{
+		Aluno: &proto.Aluno{
+			Ra:      res.Aluno.RA,
 			Nome:    res.Aluno.Nome,
 			Email:   res.Aluno.Email,
 			Celular: res.Aluno.Celular,
@@ -192,19 +192,17 @@ func decodeGrpcGetResponse(_ context.Context, grpcRes interface{}) (interface{},
 }
 
 func decodeGrpcGetAllResponse(_ context.Context, grpcRes interface{}) (interface{}, error) {
-	res := grpcRes.(*proto.GetAllResponse)
-	var alus []model.Aluno
+	res := grpcRes.(endpoints.GetAllResponse)
+	var alus []*proto.Aluno
 	for _, a := range res.Alunos {
-		alu := model.Aluno{
-			RA:      a.Ra,
+		alus = append(alus, &proto.Aluno{
+			Ra:      a.RA,
 			Nome:    a.Nome,
 			Email:   a.Email,
 			Celular: a.Celular,
-		}
-		alus = append(alus, alu)
+		})
 	}
-
-	return endpoints.GetAllResponse{
+	return &proto.GetAllResponse{
 		Alunos: alus,
 		Status: res.Status,
 		Error:  res.Error,
@@ -212,16 +210,16 @@ func decodeGrpcGetAllResponse(_ context.Context, grpcRes interface{}) (interface
 }
 
 func decodeGrpcDeleteResponse(_ context.Context, grpcRes interface{}) (interface{}, error) {
-	res := grpcRes.(*proto.DeleteResponse)
-	return endpoints.DeleteResponse{
+	res := grpcRes.(endpoints.DeleteResponse)
+	return &proto.DeleteResponse{
 		Status: res.Status,
 		Error:  res.Error,
 	}, nil
 }
 
 func decodeGrpcStatusServiceResponse(_ context.Context, grpcRes interface{}) (interface{}, error) {
-	res := grpcRes.(*proto.StatusServiceResponse)
-	return endpoints.StatusServiceResponse{
+	res := grpcRes.(endpoints.StatusServiceResponse)
+	return &proto.StatusServiceResponse{
 		Status: res.Status,
 		Error:  res.Error,
 	}, nil
