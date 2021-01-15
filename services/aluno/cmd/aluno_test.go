@@ -41,7 +41,7 @@ func TestServiceGet(t *testing.T) {
 	c := proto.NewServiceAlunoClient(conn)
 
 	req := proto.GetRequest{
-		Ra: "10.846.2074-5",
+		Ra: "10.846.074-5",
 	}
 
 	response, err := c.Get(context.Background(), &req)

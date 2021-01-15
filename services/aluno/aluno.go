@@ -39,28 +39,28 @@ func (a *alunoService) Alter(ctx context.Context, alu model.Aluno) (bool, error)
 
 func (a *alunoService) Get(ctx context.Context, ra string) (model.Aluno, error) {
 	logger := log.With(a.logger, "method", "Get")
-	level.Info(logger).Log("msg", fmt.Sprintf("Retornando o registro RA: %d", ra))
+	level.Info(logger).Log("msg", fmt.Sprintf("Buscando o registro com RA: %s", ra))
 
-	a_res, err := a.repository.Get(ctx, ra)
+	aluRes, err := a.repository.Get(ctx, ra)
 	if err != nil {
 		level.Error(logger).Log("error", err)
 		return model.Aluno{}, err
 	}
 
-	level.Info(logger).Log("Get user", a_res)
-	return a_res, nil
+	level.Info(logger).Log("msg", fmt.Sprintf("%v", aluRes))
+	return aluRes, nil
 }
 
 func (a *alunoService) GetAll(ctx context.Context, page uint32) ([]model.Aluno, error) {
 	logger := log.With(a.logger, "method", "GetAll")
-	level.Info(logger).Log("msg", fmt.Sprintf("Retornando uma lista de registro da página: %d", page))
+	level.Info(logger).Log("msg", fmt.Sprintf("Buscando uma lista de registro da página: %d", page))
 
 	return []model.Aluno{}, nil
 }
 
 func (a *alunoService) Delete(ctx context.Context, ra string) (bool, error) {
 	logger := log.With(a.logger, "method", "Delete")
-	level.Info(logger).Log("msg", fmt.Sprintf("Deletando o registro RA: %d", ra))
+	level.Info(logger).Log("msg", fmt.Sprintf("Deletando o registro RA: %s", ra))
 
 	return false, nil
 }
