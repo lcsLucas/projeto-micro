@@ -5,16 +5,16 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/lcslucas/projeto-micro/services/aluno/proto"
+	"github.com/lcslucas/projeto-micro/services/exercicio/proto"
 	"google.golang.org/grpc"
 )
 
 var (
 	grpcHost = "localhost"
-	grpcPort = "8081"
+	grpcPort = "8082"
 )
 
-func TestServiceStatusService(t *testing.T) {
+func TestStatusService(t *testing.T) {
 	var conn *grpc.ClientConn
 	conn, err := grpc.Dial(fmt.Sprintf("%s:%s", grpcHost, grpcPort), grpc.WithInsecure())
 	if err != nil {
@@ -22,7 +22,7 @@ func TestServiceStatusService(t *testing.T) {
 	}
 	defer conn.Close()
 
-	c := proto.NewServiceAlunoClient(conn)
+	c := proto.NewServiceExercicioClient(conn)
 
 	req := proto.StatusServiceRequest{}
 
@@ -34,9 +34,11 @@ func TestServiceStatusService(t *testing.T) {
 	if response.Error != "" {
 		t.Fatalf("Erro recebido do servidor: %s", response.Error)
 	}
+
+	t.Log(response)
 }
 
-func TestServiceGet(t *testing.T) {
+func TestCreate(t *testing.T) {
 	var conn *grpc.ClientConn
 	conn, err := grpc.Dial(fmt.Sprintf("%s:%s", grpcHost, grpcPort), grpc.WithInsecure())
 	if err != nil {
@@ -44,62 +46,15 @@ func TestServiceGet(t *testing.T) {
 	}
 	defer conn.Close()
 
-	c := proto.NewServiceAlunoClient(conn)
-
-	req := proto.GetRequest{
-		Ra: "10.846.074-5",
-	}
-
-	response, err := c.Get(context.Background(), &req)
-	if err != nil {
-		t.Fatalf("Não foi possível chamar o método Get: %s", err)
-	}
-
-	if response.Error != "" {
-		t.Fatalf("Erro recebido do servidor: %s", response.Error)
-	}
-
-	t.Log(response.Aluno)
-}
-func TestServiceGetAll(t *testing.T) {
-	var conn *grpc.ClientConn
-	conn, err := grpc.Dial(fmt.Sprintf("%s:%s", grpcHost, grpcPort), grpc.WithInsecure())
-	if err != nil {
-		t.Fatalf("Não foi possível conectar: %s", err)
-	}
-	defer conn.Close()
-
-	c := proto.NewServiceAlunoClient(conn)
-
-	req := proto.GetAllRequest{
-		Page: 1,
-	}
-
-	response, err := c.GetAll(context.Background(), &req)
-	if err != nil {
-		t.Fatalf("Não foi possível chamar o método GetAll: %s", err)
-	}
-
-	if response.Error != "" {
-		t.Fatalf("Erro recebido do servidor: %s", response.Error)
-	}
-}
-func TestServiceCreate(t *testing.T) {
-	var conn *grpc.ClientConn
-	conn, err := grpc.Dial(fmt.Sprintf("%s:%s", grpcHost, grpcPort), grpc.WithInsecure())
-	if err != nil {
-		t.Fatalf("Não foi possível conectar: %s", err)
-	}
-	defer conn.Close()
-
-	c := proto.NewServiceAlunoClient(conn)
+	c := proto.NewServiceExercicioClient(conn)
 
 	req := proto.CreateAlterRequest{
-		Aluno: &proto.Aluno{
-			Ra:      "111",
-			Nome:    "Teste de Aluno",
-			Email:   "teste@email.com",
-			Celular: "(18) 9999-9999",
+		Exercicio: &proto.Exercicio{
+			Id:        0,
+			Nome:      "Exercicio de Teste",
+			Descricao: "Descrição do exercicio de teste",
+			Materia:   "Teste",
+			Ativo:     false,
 		},
 	}
 
@@ -111,9 +66,11 @@ func TestServiceCreate(t *testing.T) {
 	if response.Error != "" {
 		t.Fatalf("Erro recebido do servidor: %s", response.Error)
 	}
+
+	t.Log(response)
 }
 
-func TestServiceAlter(t *testing.T) {
+func TestAlter(t *testing.T) {
 	var conn *grpc.ClientConn
 	conn, err := grpc.Dial(fmt.Sprintf("%s:%s", grpcHost, grpcPort), grpc.WithInsecure())
 	if err != nil {
@@ -121,14 +78,15 @@ func TestServiceAlter(t *testing.T) {
 	}
 	defer conn.Close()
 
-	c := proto.NewServiceAlunoClient(conn)
+	c := proto.NewServiceExercicioClient(conn)
 
 	req := proto.CreateAlterRequest{
-		Aluno: &proto.Aluno{
-			Ra:      "111",
-			Nome:    "Teste de Aluno",
-			Email:   "teste@email.com",
-			Celular: "(18) 9999-9999",
+		Exercicio: &proto.Exercicio{
+			Id:        0,
+			Nome:      "Exercicio de Teste",
+			Descricao: "Descrição do exercicio de teste",
+			Materia:   "Teste",
+			Ativo:     false,
 		},
 	}
 
@@ -140,9 +98,11 @@ func TestServiceAlter(t *testing.T) {
 	if response.Error != "" {
 		t.Fatalf("Erro recebido do servidor: %s", response.Error)
 	}
+
+	t.Log(response)
 }
 
-func TestServiceDelete(t *testing.T) {
+func TestGet(t *testing.T) {
 	var conn *grpc.ClientConn
 	conn, err := grpc.Dial(fmt.Sprintf("%s:%s", grpcHost, grpcPort), grpc.WithInsecure())
 	if err != nil {
@@ -150,10 +110,64 @@ func TestServiceDelete(t *testing.T) {
 	}
 	defer conn.Close()
 
-	c := proto.NewServiceAlunoClient(conn)
+	c := proto.NewServiceExercicioClient(conn)
+
+	req := proto.GetRequest{
+		Id: 1,
+	}
+
+	response, err := c.Get(context.Background(), &req)
+	if err != nil {
+		t.Fatalf("Não foi possível chamar o método Get: %s", err)
+	}
+
+	if response.Error != "" {
+		t.Fatalf("Erro recebido do servidor: %s", response.Error)
+	}
+
+	t.Log(response)
+
+}
+
+func TestGetSomes(t *testing.T) {
+	var conn *grpc.ClientConn
+	conn, err := grpc.Dial(fmt.Sprintf("%s:%s", grpcHost, grpcPort), grpc.WithInsecure())
+	if err != nil {
+		t.Fatalf("Não foi possível conectar: %s", err)
+	}
+	defer conn.Close()
+
+	c := proto.NewServiceExercicioClient(conn)
+
+	req := proto.GetSomesRequest{
+		Ids: []uint64{1, 3, 5},
+	}
+
+	response, err := c.GetSomes(context.Background(), &req)
+	if err != nil {
+		t.Fatalf("Não foi possível chamar o método GetSomes: %s", err)
+	}
+
+	if response.Error != "" {
+		t.Fatalf("Erro recebido do servidor: %s", response.Error)
+	}
+
+	t.Log(response)
+
+}
+
+func TestDelete(t *testing.T) {
+	var conn *grpc.ClientConn
+	conn, err := grpc.Dial(fmt.Sprintf("%s:%s", grpcHost, grpcPort), grpc.WithInsecure())
+	if err != nil {
+		t.Fatalf("Não foi possível conectar: %s", err)
+	}
+	defer conn.Close()
+
+	c := proto.NewServiceExercicioClient(conn)
 
 	req := proto.DeleteRequest{
-		Ra: "40.738.017-6",
+		Id: 1,
 	}
 
 	response, err := c.Delete(context.Background(), &req)
@@ -164,4 +178,7 @@ func TestServiceDelete(t *testing.T) {
 	if response.Error != "" {
 		t.Fatalf("Erro recebido do servidor: %s", response.Error)
 	}
+
+	t.Log(response)
+
 }

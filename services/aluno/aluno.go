@@ -2,6 +2,7 @@ package aluno
 
 import (
 	"context"
+	"errors"
 	"fmt"
 
 	"github.com/lcslucas/projeto-micro/services/aluno/model"
@@ -27,14 +28,14 @@ func (a *alunoService) Create(ctx context.Context, alu model.Aluno) (bool, error
 	logger := log.With(a.logger, "method", "Create")
 	level.Info(logger).Log("msg", fmt.Sprintf("Criando o registro: %v", alu))
 
-	return false, nil
+	return false, errors.New("Not implemented")
 }
 
 func (a *alunoService) Alter(ctx context.Context, alu model.Aluno) (bool, error) {
 	logger := log.With(a.logger, "method", "Alter")
 	level.Info(logger).Log("msg", fmt.Sprintf("Alterando o registro: %v", alu))
 
-	return false, nil
+	return false, errors.New("Not implemented")
 }
 
 func (a *alunoService) Get(ctx context.Context, ra string) (model.Aluno, error) {
@@ -62,12 +63,12 @@ func (a *alunoService) Delete(ctx context.Context, ra string) (bool, error) {
 	logger := log.With(a.logger, "method", "Delete")
 	level.Info(logger).Log("msg", fmt.Sprintf("Deletando o registro RA: %s", ra))
 
-	return false, nil
+	return false, errors.New("Not implemented")
 }
 
 func (a *alunoService) StatusService(ctx context.Context) (bool, error) {
 	logger := log.With(a.logger, "method", "StatusService")
 	level.Info(logger).Log("msg", fmt.Sprint("Status do serviço: OK"))
 
-	return false, nil
+	return false, errors.New("Not implemented")
 }

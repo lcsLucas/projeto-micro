@@ -46,6 +46,11 @@ func ExecMigrationAlunos(ctx context.Context, database string, clientMongo *mong
 	}
 
 	collection := db.Collection("alunos")
+	err = collection.Drop(ctx)
+	if err != nil {
+		return err
+	}
+
 	_, err = collection.InsertMany(ctx, pessoas_aleatorias)
 	if err != nil {
 		return err

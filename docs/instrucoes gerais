@@ -4,7 +4,15 @@
 	3º: Criar o model do serviço
 	4º: Criar a interface do Repositório do serviço
 	5º: Criar a struct do repositório do servico com os metodos da interface definidos.
+	6 º Criar o protobuf que será utilizado pelo serviço na comunicação gRPC
+	7 º Compilar o .proto do serviço gRPC
+	8 º Definir os Requests e Responses do serviço
+	9 º Criar o endpoint do serviço
+	10 º Criar o servidor gRPC implementando os metodos gerado da interface do servidor no .proto e os decodes dos request e responses
+
 
 ### Como criar um novo container docker para o mongodb
 	- Executar em um terminal esse comando (o terminal deve está aponta para a pasta raiz do projeto):
 		- docker run -it -v ./data/mongodb:/data/db -p 27017:27017 -d --name micro-mongo mongo
+### Abrir o container do mongodb
+	- docker exec -it micro-mongo bash

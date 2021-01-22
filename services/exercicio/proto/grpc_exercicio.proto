@@ -1,0 +1,71 @@
+syntax = "proto3";
+
+package proto;
+
+/* ### Instrução para gerar o arquivo .go desse arquivo
+    1º: Abrir uma janela do prompt de comando nessa pasta atual onde está o arquivo .proto
+    2º Executar o comando:
+        > protoc --go_opt=paths=source_relative --go_out=plugins=grpc:. grpc_exercicio.proto
+*/
+
+service ServiceExercicio {
+    rpc Create (CreateAlterRequest) returns (CreateAlterResponse) {}
+	rpc Alter (CreateAlterRequest) returns (CreateAlterResponse) {}
+	rpc Get (GetRequest) returns (GetResponse) {}
+	rpc GetSomes (GetSomesRequest) returns (GetSomesResponse) {}
+	rpc Delete (DeleteRequest) returns (DeleteResponse) {}
+	rpc StatusService (StatusServiceRequest) returns (StatusServiceResponse) {}
+}
+
+message Exercicio {
+    uint64 id = 1;
+    string nome = 2;
+    string descricao = 3;
+    string materia = 4;
+    bool ativo = 5;
+}
+
+message CreateAlterRequest {
+    Exercicio exercicio = 1;
+}
+
+message CreateAlterResponse {
+    bool status = 1;    
+    string error = 2;
+}
+
+message GetRequest {
+    uint64 id = 1;
+}
+
+message GetResponse {
+    Exercicio exercicio = 1;
+    bool status = 2;    
+    string error = 3;
+}
+
+message GetSomesRequest {
+    repeated uint64 ids = 1;
+}
+
+message GetSomesResponse {
+    repeated Exercicio exercicios = 1;
+    bool status = 2;    
+    string error = 3;
+}
+
+message DeleteRequest {
+    uint64 id = 1;
+}
+
+message DeleteResponse {
+    bool status = 1;    
+    string error = 2;
+}
+
+message StatusServiceRequest {}
+
+message StatusServiceResponse {
+    bool status = 1;    
+    string error = 2;
+}
