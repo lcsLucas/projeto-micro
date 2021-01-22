@@ -11,7 +11,7 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
-const TableName = "exercicios"
+const tableName = "exercicios"
 
 type repository struct {
 	clientMongo *mongo.Client
@@ -42,16 +42,16 @@ func (r *repository) Get(ctx context.Context, id uint64) (model.Exercicio, error
 
 func (r *repository) GetSomes(ctx context.Context, ids []uint64) ([]model.Exercicio, error) {
 	db := r.clientMongo.Database(r.configDB.DBName)
-	collection := db.Collection(TableName)
+	collection := db.Collection(tableName)
 
-	var p_ids []interface{}
+	var pIds []interface{}
 
 	for _, v := range ids {
-		p_ids = append(p_ids, bson.D{{"id", v}})
+		pIds = append(pIds, bson.D{{Key: "id", Value: v}})
 	}
 
 	filter := bson.D{
-		{"$or", p_ids},
+		{Key: "$or", Value: pIds},
 	}
 
 	exes := []model.Exercicio{}
