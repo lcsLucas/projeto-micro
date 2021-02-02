@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/lcslucas/projeto-micro/services/exercicio/model"
+	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
@@ -11,6 +12,12 @@ func ExecMigrationExercicios(ctx context.Context, database string, clientMongo *
 	var err error
 
 	db := clientMongo.Database(database)
+
+	collecNames, err := db.ListCollectionNames(ctx, bson.D{{Key: "name", Value: "exercicios"}})
+
+	if err == nil && len(collecNames) > 0 { // colection exercicios já existe na base de dados
+		return nil
+	}
 
 	exerciciosAleatorios := []interface{}{
 		model.Exercicio{

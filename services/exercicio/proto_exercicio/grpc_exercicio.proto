@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-package proto;
+package proto_exercicio;
 
 /* ### Instrução para gerar o arquivo .go desse arquivo
     1º: Abrir uma janela do prompt de comando nessa pasta atual onde está o arquivo .proto

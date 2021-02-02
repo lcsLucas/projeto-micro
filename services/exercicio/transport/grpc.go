@@ -6,7 +6,7 @@ import (
 	grpctransport "github.com/go-kit/kit/transport/grpc"
 	"github.com/lcslucas/projeto-micro/services/exercicio/endpoints"
 	"github.com/lcslucas/projeto-micro/services/exercicio/model"
-	"github.com/lcslucas/projeto-micro/services/exercicio/proto"
+	proto "github.com/lcslucas/projeto-micro/services/exercicio/proto_exercicio"
 )
 
 type grpcServer struct {

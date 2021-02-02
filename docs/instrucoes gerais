@@ -13,6 +13,14 @@
 
 ### Como criar um novo container docker para o mongodb
 	- Executar em um terminal esse comando (o terminal deve está aponta para a pasta raiz do projeto):
-		- docker run -it -v ./data/mongodb:/data/db -p 27017:27017 -d --name micro-mongo mongo
+		- docker run -it --name micro-mongo -v ./data/mongodb:/data/db -p 27017:27017 -d mongo:4.4.3
+
+## Como criar um novo container docker para o postgreSQL
+	- Executar em um terminal esse comando (o terminal deve está aponta para a pasta raiz do projeto):
+		- docker run -it --name micro-postgres -e "POSTGRES_PASSWORD=postgres123" -p 5432:5432 -v /data/postgresql:/var/lib/postgresql/data -d postgres
+
 ### Abrir o container do mongodb
 	- docker exec -it micro-mongo bash
+
+### Abrir o container do postgresql
+	- docker exec -it micro-postgres psql -d micro -U postgres

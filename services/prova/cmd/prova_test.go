@@ -4,14 +4,17 @@ import (
 	"context"
 	"fmt"
 	"testing"
+	"time"
 
-	proto "github.com/lcslucas/projeto-micro/services/exercicio/proto_exercicio"
+	proto "github.com/lcslucas/projeto-micro/services/prova/proto_prova"
+	"github.com/lcslucas/projeto-micro/utils"
 	"google.golang.org/grpc"
+	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 var (
 	grpcHost = "localhost"
-	grpcPort = "8082"
+	grpcPort = "8083"
 )
 
 func TestStatusService(t *testing.T) {
@@ -22,7 +25,7 @@ func TestStatusService(t *testing.T) {
 	}
 	defer conn.Close()
 
-	c := proto.NewServiceExercicioClient(conn)
+	c := proto.NewServiceProvaClient(conn)
 
 	req := proto.StatusServiceRequest{}
 
@@ -46,15 +49,17 @@ func TestCreate(t *testing.T) {
 	}
 	defer conn.Close()
 
-	c := proto.NewServiceExercicioClient(conn)
+	c := proto.NewServiceProvaClient(conn)
 
 	req := proto.CreateAlterRequest{
-		Exercicio: &proto.Exercicio{
-			Id:        0,
-			Nome:      "Exercicio de Teste",
-			Descricao: "Descrição do exercicio de teste",
-			Materia:   "Teste",
-			Ativo:     false,
+		Prova: &proto.Prova{
+			Nome:         "Prova de Teste",
+			DataCadastro: timestamppb.New(time.Now()),
+			DataInicio:   timestamppb.New(time.Now()),
+			DataFinal:    timestamppb.New(time.Now()),
+			Serie:        "3º Ano Ensino Médio",
+			Materia:      "Biologia",
+			Bimestre:     1,
 		},
 	}
 
@@ -68,6 +73,7 @@ func TestCreate(t *testing.T) {
 	}
 
 	t.Log(response)
+
 }
 
 func TestAlter(t *testing.T) {
@@ -78,15 +84,18 @@ func TestAlter(t *testing.T) {
 	}
 	defer conn.Close()
 
-	c := proto.NewServiceExercicioClient(conn)
+	c := proto.NewServiceProvaClient(conn)
 
 	req := proto.CreateAlterRequest{
-		Exercicio: &proto.Exercicio{
-			Id:        0,
-			Nome:      "Exercicio de Teste",
-			Descricao: "Descrição do exercicio de teste",
-			Materia:   "Teste",
-			Ativo:     false,
+		Prova: &proto.Prova{
+			Id:           1,
+			Nome:         "Prova de Teste",
+			DataCadastro: timestamppb.New(time.Now()),
+			DataInicio:   timestamppb.New(time.Now()),
+			DataFinal:    timestamppb.New(time.Now()),
+			Serie:        "3º Ano Ensino Médio",
+			Materia:      "Biologia",
+			Bimestre:     2,
 		},
 	}
 
@@ -100,6 +109,7 @@ func TestAlter(t *testing.T) {
 	}
 
 	t.Log(response)
+
 }
 
 func TestGet(t *testing.T) {
@@ -110,7 +120,7 @@ func TestGet(t *testing.T) {
 	}
 	defer conn.Close()
 
-	c := proto.NewServiceExercicioClient(conn)
+	c := proto.NewServiceProvaClient(conn)
 
 	req := proto.GetRequest{
 		Id: 1,
@@ -129,7 +139,7 @@ func TestGet(t *testing.T) {
 
 }
 
-func TestGetSomes(t *testing.T) {
+func TestGetProvaAluno(t *testing.T) {
 	var conn *grpc.ClientConn
 	conn, err := grpc.Dial(fmt.Sprintf("%s:%s", grpcHost, grpcPort), grpc.WithInsecure())
 	if err != nil {
@@ -137,15 +147,43 @@ func TestGetSomes(t *testing.T) {
 	}
 	defer conn.Close()
 
-	c := proto.NewServiceExercicioClient(conn)
+	c := proto.NewServiceProvaClient(conn)
 
-	req := proto.GetSomesRequest{
-		Ids: []uint64{1, 3, 5},
+	req := proto.GetProvaAlunoRequest{
+		IdProva: 5,
+		RaAluno: "35.329.394-5",
 	}
 
-	response, err := c.GetSomes(context.Background(), &req)
+	response, err := c.GetProvaAluno(context.Background(), &req)
 	if err != nil {
-		t.Fatalf("Não foi possível chamar o método GetSomes: %s", err)
+		t.Fatalf("Não foi possível chamar o método Get: %s", err)
+	}
+
+	if response.Error != "" {
+		t.Fatalf("Erro recebido do servidor: %s", response.Error)
+	}
+
+	utils.Pretty(response)
+
+}
+
+func TestGetAll(t *testing.T) {
+	var conn *grpc.ClientConn
+	conn, err := grpc.Dial(fmt.Sprintf("%s:%s", grpcHost, grpcPort), grpc.WithInsecure())
+	if err != nil {
+		t.Fatalf("Não foi possível conectar: %s", err)
+	}
+	defer conn.Close()
+
+	c := proto.NewServiceProvaClient(conn)
+
+	req := proto.GetAllRequest{
+		Page: 1,
+	}
+
+	response, err := c.GetAll(context.Background(), &req)
+	if err != nil {
+		t.Fatalf("Não foi possível chamar o método GetAll: %s", err)
 	}
 
 	if response.Error != "" {
@@ -164,7 +202,7 @@ func TestDelete(t *testing.T) {
 	}
 	defer conn.Close()
 
-	c := proto.NewServiceExercicioClient(conn)
+	c := proto.NewServiceProvaClient(conn)
 
 	req := proto.DeleteRequest{
 		Id: 1,

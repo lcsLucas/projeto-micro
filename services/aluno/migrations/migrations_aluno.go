@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/lcslucas/projeto-micro/services/aluno/model"
+	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
@@ -11,6 +12,12 @@ func ExecMigrationAlunos(ctx context.Context, database string, clientMongo *mong
 	var err error
 
 	db := clientMongo.Database(database)
+
+	collecNames, err := db.ListCollectionNames(ctx, bson.D{{Key: "name", Value: "alunos"}})
+
+	if err == nil && len(collecNames) > 0 { // colection alunos já existe na base de dados
+		return nil
+	}
 
 	pessoas_aleatorias := []interface{}{
 		model.Aluno{

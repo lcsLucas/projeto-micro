@@ -1,0 +1,111 @@
+syntax = "proto3";
+
+package proto_prova;
+
+import "google/protobuf/timestamp.proto";   
+/* ### Instrução para gerar o arquivo .go desse arquivo
+    1º: Abrir uma janela do prompt de comando nessa pasta atual onde está o arquivo .proto
+    2º Executar o comando:
+        > protoc --go_opt=paths=source_relative --go_out=plugins=grpc:. grpc_prova.proto
+*/
+
+service ServiceProva {
+    rpc Create (CreateAlterRequest) returns (CreateAlterResponse) {}
+    rpc Alter (CreateAlterRequest) returns (CreateAlterResponse) {}
+    rpc Get (GetRequest) returns (GetResponse) {}
+    rpc GetProvaAluno (GetProvaAlunoRequest) returns (GetResponse) {}
+    rpc GetAll (GetAllRequest) returns (GetAllResponse) {}
+    rpc Delete (DeleteRequest) returns (DeleteResponse) {}
+    rpc StatusService (StatusServiceRequest) returns (StatusServiceResponse) {}
+} 
+
+/*
+	DataInicio   time.Time 
+	DataFinal    time.Time 
+	Serie        string    
+	Materia      string    
+	Bimestre     uint16    
+	Finalizada   bool      
+	raAluno      string
+	Aluno        model.Aluno         
+	Exercicios   []mod_exe.Exercicio 
+*/
+
+message Aluno {
+    string ra = 1;
+    string nome = 2;
+    string email = 3;
+    string celular = 4;
+}
+
+message Exercicio {
+    uint64 id = 1;
+    string nome = 2;
+    string descricao = 3;
+    string materia = 4;
+    bool ativo = 5;
+}
+
+message Prova {
+    uint64 id = 1;
+    string nome = 2;
+    google.protobuf.Timestamp dataCadastro = 3;
+    google.protobuf.Timestamp dataInicio = 4;
+    google.protobuf.Timestamp dataFinal = 5;
+    string serie = 6;
+    string materia = 7;
+    uint32 bimestre = 8;
+    bool finalizada = 9;
+    Aluno aluno = 10;
+    repeated Exercicio exercicios = 11;
+}
+
+message CreateAlterRequest {
+    Prova prova = 1;
+}
+
+message CreateAlterResponse {
+    bool status = 1;    
+    string error = 2;
+}
+
+message GetRequest {
+    uint64 id = 1;
+}
+
+message GetResponse {
+    Prova prova = 1;
+    bool status = 2;    
+    string error = 3;
+}
+
+message GetProvaAlunoRequest {
+    uint64 id_prova = 1;
+    string ra_aluno = 2;
+}
+
+message GetAllRequest {
+    uint32 page = 1;
+}
+
+message GetAllResponse {
+    repeated Prova provas = 1;
+    bool status = 2;    
+    string error = 3;
+}
+
+message DeleteRequest {
+    int64 id = 1;
+}
+
+message DeleteResponse {
+    bool status = 1;    
+    string error = 2;
+}
+
+message StatusServiceRequest {}
+
+message StatusServiceResponse {
+    bool status = 1;    
+    string error = 2;
+}

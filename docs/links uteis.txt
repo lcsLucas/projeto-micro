@@ -3,3 +3,10 @@
 
 # Como implementar um novo serviço utilizando go kit e gRPC
     - https://dev.to/junereycasuga/go-grpc-with-go-kit-3gab
+
+# Melhorando a performance de conexão com o banco de dados
+    - https://www.alexedwards.net/blog/configuring-sqldb
+    - https://making.pusher.com/production-ready-connection-pooling-in-go/
+
+# Trabalhando com Dockerfile
+    - https://docs.docker.com/develop/develop-images/dockerfile_best-practices/

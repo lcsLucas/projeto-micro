@@ -21,7 +21,7 @@ import (
 	"github.com/lcslucas/projeto-micro/services/exercicio"
 	"github.com/lcslucas/projeto-micro/services/exercicio/endpoints"
 	"github.com/lcslucas/projeto-micro/services/exercicio/migrations"
-	"github.com/lcslucas/projeto-micro/services/exercicio/proto"
+	proto "github.com/lcslucas/projeto-micro/services/exercicio/proto_exercicio"
 	"github.com/lcslucas/projeto-micro/services/exercicio/repository"
 	"github.com/lcslucas/projeto-micro/services/exercicio/transport"
 

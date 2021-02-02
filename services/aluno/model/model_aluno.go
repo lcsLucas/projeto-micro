@@ -17,3 +17,5 @@ type Repository interface {
 	Delete(ctx context.Context, ra string) (bool, error)
 	StatusService(ctx context.Context) (bool, error)
 }
+
+//

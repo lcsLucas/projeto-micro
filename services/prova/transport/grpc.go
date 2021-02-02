@@ -4,36 +4,45 @@ import (
 	"context"
 
 	grpctransport "github.com/go-kit/kit/transport/grpc"
-	"github.com/lcslucas/projeto-micro/services/aluno/endpoints"
-	"github.com/lcslucas/projeto-micro/services/aluno/model"
-	proto "github.com/lcslucas/projeto-micro/services/aluno/proto_aluno"
+	modelA "github.com/lcslucas/projeto-micro/services/aluno/model"
+	modelE "github.com/lcslucas/projeto-micro/services/exercicio/model"
+	"github.com/lcslucas/projeto-micro/services/prova/endpoints"
+	"github.com/lcslucas/projeto-micro/services/prova/model"
+	proto "github.com/lcslucas/projeto-micro/services/prova/proto_prova"
+	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 type grpcServer struct {
 	create        grpctransport.Handler
 	alter         grpctransport.Handler
 	get           grpctransport.Handler
+	getProvaAluno grpctransport.Handler
 	getAll        grpctransport.Handler
 	delete        grpctransport.Handler
 	statusService grpctransport.Handler
 }
 
 // NewGrpcServer inicializa um novo servidor gRPC
-func NewGrpcServer(ep endpoints.Set) proto.ServiceAlunoServer {
+func NewGrpcServer(ep endpoints.Set) proto.ServiceProvaServer {
 	return &grpcServer{
 		create: grpctransport.NewServer(
 			ep.CreateEndpoint,
-			decodeGrpcCreateRequest,
-			decodeGrpcCreateResponse,
+			decodeGrpcCreateAlterRequest,
+			decodeGrpcCreateAlterResponse,
 		),
 		alter: grpctransport.NewServer(
 			ep.AlterEndpoint,
-			decodeGrpcAlterRequest,
-			decodeGrpcAlterResponse,
+			decodeGrpcCreateAlterRequest,
+			decodeGrpcCreateAlterResponse,
 		),
 		get: grpctransport.NewServer(
 			ep.GetEndpoint,
 			decodeGrpcGetRequest,
+			decodeGrpcGetResponse,
+		),
+		getProvaAluno: grpctransport.NewServer(
+			ep.GetProvaAlunoEndpoint,
+			decodeGrpcGetProvaAlunoRequest,
 			decodeGrpcGetResponse,
 		),
 		getAll: grpctransport.NewServer(
@@ -53,6 +62,8 @@ func NewGrpcServer(ep endpoints.Set) proto.ServiceAlunoServer {
 		),
 	}
 }
+
+/* Implementations interfaces methods */
 
 func (g *grpcServer) Create(ctx context.Context, r *proto.CreateAlterRequest) (*proto.CreateAlterResponse, error) {
 	_, res, err := g.create.ServeGRPC(ctx, r)
@@ -74,6 +85,15 @@ func (g *grpcServer) Alter(ctx context.Context, r *proto.CreateAlterRequest) (*p
 
 func (g *grpcServer) Get(ctx context.Context, r *proto.GetRequest) (*proto.GetResponse, error) {
 	_, res, err := g.get.ServeGRPC(ctx, r)
+	if err != nil {
+		return nil, err
+	}
+
+	return res.(*proto.GetResponse), nil
+}
+
+func (g *grpcServer) GetProvaAluno(ctx context.Context, r *proto.GetProvaAlunoRequest) (*proto.GetResponse, error) {
+	_, res, err := g.getProvaAluno.ServeGRPC(ctx, r)
 	if err != nil {
 		return nil, err
 	}
@@ -108,28 +128,46 @@ func (g *grpcServer) StatusService(ctx context.Context, r *proto.StatusServiceRe
 	return res.(*proto.StatusServiceResponse), nil
 }
 
-/* Request */
+/* Requests */
 
-func decodeGrpcCreateRequest(_ context.Context, grpcReq interface{}) (interface{}, error) {
+func decodeGrpcCreateAlterRequest(_ context.Context, grpcReq interface{}) (interface{}, error) {
 	req := grpcReq.(*proto.CreateAlterRequest)
-	return endpoints.CreateAlterRequest{
-		Aluno: model.Aluno{
-			RA:      req.Aluno.Ra,
-			Nome:    req.Aluno.Nome,
-			Email:   req.Aluno.Email,
-			Celular: req.Aluno.Celular,
-		},
-	}, nil
-}
 
-func decodeGrpcAlterRequest(_ context.Context, grpcReq interface{}) (interface{}, error) {
-	req := grpcReq.(*proto.CreateAlterRequest)
+	var exes []modelE.Exercicio
+	for _, e := range req.Prova.Exercicios {
+		exes = append(exes, modelE.Exercicio{
+			ID:        e.Id,
+			Nome:      e.Nome,
+			Descricao: e.Descricao,
+			Materia:   e.Materia,
+			Ativo:     e.Ativo,
+		})
+	}
+
+	aluRes := modelA.Aluno{}
+
+	if req.Prova.Aluno != nil {
+		aluRes = modelA.Aluno{
+			RA:      req.Prova.Aluno.Ra,
+			Nome:    req.Prova.Aluno.Nome,
+			Email:   req.Prova.Aluno.Email,
+			Celular: req.Prova.Aluno.Celular,
+		}
+	}
+
 	return endpoints.CreateAlterRequest{
-		Aluno: model.Aluno{
-			RA:      req.Aluno.Ra,
-			Nome:    req.Aluno.Nome,
-			Email:   req.Aluno.Email,
-			Celular: req.Aluno.Celular,
+		Prova: model.Prova{
+			ID:           req.Prova.Id,
+			Nome:         req.Prova.Nome,
+			DataCadastro: req.Prova.DataCadastro.AsTime(),
+			DataInicio:   req.Prova.DataInicio.AsTime(),
+			DataFinal:    req.Prova.DataFinal.AsTime(),
+			Serie:        req.Prova.Serie,
+			Materia:      req.Prova.Materia,
+			Bimestre:     uint16(req.Prova.Bimestre),
+			Finalizada:   req.Prova.Finalizada,
+			Aluno:        aluRes,
+			Exercicios:   exes,
 		},
 	}, nil
 }
@@ -137,7 +175,15 @@ func decodeGrpcAlterRequest(_ context.Context, grpcReq interface{}) (interface{}
 func decodeGrpcGetRequest(_ context.Context, grpcReq interface{}) (interface{}, error) {
 	req := grpcReq.(*proto.GetRequest)
 	return endpoints.GetRequest{
-		RA: req.Ra,
+		ID: req.Id,
+	}, nil
+}
+
+func decodeGrpcGetProvaAlunoRequest(_ context.Context, grpcReq interface{}) (interface{}, error) {
+	req := grpcReq.(*proto.GetProvaAlunoRequest)
+	return endpoints.GetProvaAlunoRequest{
+		IDProva: req.IdProva,
+		RaAluno: req.RaAluno,
 	}, nil
 }
 
@@ -151,7 +197,7 @@ func decodeGrpcGetAllRequest(_ context.Context, grpcReq interface{}) (interface{
 func decodeGrpcDeleteRequest(_ context.Context, grpcReq interface{}) (interface{}, error) {
 	req := grpcReq.(*proto.DeleteRequest)
 	return endpoints.DeleteRequest{
-		RA: req.Ra,
+		ID: uint64(req.Id),
 	}, nil
 }
 
@@ -161,15 +207,7 @@ func decodeGrpcStatusServiceRequest(_ context.Context, grpcReq interface{}) (int
 
 /* Responses */
 
-func decodeGrpcCreateResponse(_ context.Context, grpcRes interface{}) (interface{}, error) {
-	res := grpcRes.(endpoints.CreateAlterResponse)
-	return &proto.CreateAlterResponse{
-		Status: res.Status,
-		Error:  res.Error,
-	}, nil
-}
-
-func decodeGrpcAlterResponse(_ context.Context, grpcRes interface{}) (interface{}, error) {
+func decodeGrpcCreateAlterResponse(_ context.Context, grpcRes interface{}) (interface{}, error) {
 	res := grpcRes.(endpoints.CreateAlterResponse)
 	return &proto.CreateAlterResponse{
 		Status: res.Status,
@@ -179,12 +217,40 @@ func decodeGrpcAlterResponse(_ context.Context, grpcRes interface{}) (interface{
 
 func decodeGrpcGetResponse(_ context.Context, grpcRes interface{}) (interface{}, error) {
 	res := grpcRes.(endpoints.GetResponse)
+
+	tsCad := timestamppb.New(res.Prova.DataCadastro)
+	tsIni := timestamppb.New(res.Prova.DataInicio)
+	tsFin := timestamppb.New(res.Prova.DataFinal)
+
+	var exes []*proto.Exercicio
+	for _, e := range res.Prova.Exercicios {
+		exes = append(exes, &proto.Exercicio{
+			Id:        e.ID,
+			Nome:      e.Nome,
+			Descricao: e.Descricao,
+			Materia:   e.Materia,
+			Ativo:     e.Ativo,
+		})
+	}
+
 	return &proto.GetResponse{
-		Aluno: &proto.Aluno{
-			Ra:      res.Aluno.RA,
-			Nome:    res.Aluno.Nome,
-			Email:   res.Aluno.Email,
-			Celular: res.Aluno.Celular,
+		Prova: &proto.Prova{
+			Id:           res.Prova.ID,
+			Nome:         res.Prova.Nome,
+			DataCadastro: tsCad,
+			DataInicio:   tsIni,
+			DataFinal:    tsFin,
+			Serie:        res.Prova.Serie,
+			Materia:      res.Prova.Materia,
+			Bimestre:     uint32(res.Prova.Bimestre),
+			Finalizada:   res.Prova.Finalizada,
+			Aluno: &proto.Aluno{
+				Ra:      res.Prova.Aluno.RA,
+				Nome:    res.Prova.Aluno.Nome,
+				Email:   res.Prova.Aluno.Email,
+				Celular: res.Prova.Aluno.Celular,
+			},
+			Exercicios: exes,
 		},
 		Status: res.Status,
 		Error:  res.Error,
@@ -193,20 +259,53 @@ func decodeGrpcGetResponse(_ context.Context, grpcRes interface{}) (interface{},
 
 func decodeGrpcGetAllResponse(_ context.Context, grpcRes interface{}) (interface{}, error) {
 	res := grpcRes.(endpoints.GetAllResponse)
-	var alus []*proto.Aluno
-	for _, a := range res.Alunos {
-		alus = append(alus, &proto.Aluno{
-			Ra:      a.RA,
-			Nome:    a.Nome,
-			Email:   a.Email,
-			Celular: a.Celular,
+
+	var provas []*proto.Prova
+
+	for _, p := range res.Provas {
+
+		tsCad := timestamppb.New(p.DataCadastro)
+		tsIni := timestamppb.New(p.DataInicio)
+		tsFin := timestamppb.New(p.DataFinal)
+
+		var exes []*proto.Exercicio
+		for _, e := range p.Exercicios {
+			exes = append(exes, &proto.Exercicio{
+				Id:        e.ID,
+				Nome:      e.Nome,
+				Descricao: e.Descricao,
+				Materia:   e.Materia,
+				Ativo:     e.Ativo,
+			})
+		}
+
+		provas = append(provas, &proto.Prova{
+			Id:           p.ID,
+			Nome:         p.Nome,
+			DataCadastro: tsCad,
+			DataInicio:   tsIni,
+			DataFinal:    tsFin,
+			Serie:        p.Serie,
+			Materia:      p.Materia,
+			Bimestre:     uint32(p.Bimestre),
+			Finalizada:   p.Finalizada,
+			Aluno: &proto.Aluno{
+				Ra:      p.Aluno.RA,
+				Nome:    p.Aluno.Nome,
+				Email:   p.Aluno.Email,
+				Celular: p.Aluno.Celular,
+			},
+			Exercicios: exes,
 		})
+
 	}
+
 	return &proto.GetAllResponse{
-		Alunos: alus,
+		Provas: provas,
 		Status: res.Status,
 		Error:  res.Error,
 	}, nil
+
 }
 
 func decodeGrpcDeleteResponse(_ context.Context, grpcRes interface{}) (interface{}, error) {

@@ -10,7 +10,7 @@ import (
 	"strconv"
 	"syscall"
 
-	"github.com/lcslucas/projeto-micro/services/aluno/proto"
+	proto "github.com/lcslucas/projeto-micro/services/aluno/proto_aluno"
 	"github.com/lcslucas/projeto-micro/services/aluno/repository"
 
 	"github.com/lcslucas/projeto-micro/config"

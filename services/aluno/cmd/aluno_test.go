@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/lcslucas/projeto-micro/services/aluno/proto"
+	proto "github.com/lcslucas/projeto-micro/services/aluno/proto_aluno"
 	"google.golang.org/grpc"
 )
 
