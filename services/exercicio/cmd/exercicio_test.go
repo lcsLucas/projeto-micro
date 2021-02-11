@@ -10,7 +10,7 @@ import (
 )
 
 var (
-	grpcHost = "localhost"
+	grpcHost = "0.0.0.0"
 	grpcPort = "8082"
 )
 

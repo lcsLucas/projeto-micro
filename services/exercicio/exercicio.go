@@ -69,5 +69,5 @@ func (e exercicioService) StatusService(ctx context.Context) (bool, error) {
 	logger := log.With(e.logger, "method", "StatusService")
 	level.Info(logger).Log("msg", fmt.Sprint("Status do serviço: OK"))
 
-	return false, errors.New("Not implemented")
+	return true, nil
 }

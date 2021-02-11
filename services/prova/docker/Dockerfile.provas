@@ -1,0 +1,29 @@
+# Instruções de como criar a imagem e o container
+# docker build --no-cache -t service-provas -f Dockerfile.provas .
+# docker container run -i --name micro-provas --net net-micro -p 8081:8081 service-provas
+FROM dependencies AS builder
+
+COPY ./services/prova /go/src/github.com/lcslucas/projeto-service/services/prova
+COPY ./services/aluno/model /go/src/github.com/lcslucas/projeto-service/services/aluno/model
+COPY ./services/aluno/proto_aluno /go/src/github.com/lcslucas/projeto-service/services/aluno/proto_aluno
+COPY ./services/exercicio/model /go/src/github.com/lcslucas/projeto-service/services/exercicio/model
+COPY ./services/exercicio/proto_exercicio /go/src/github.com/lcslucas/projeto-service/services/exercicio/proto_exercicio
+
+WORKDIR /go/src/github.com/lcslucas/projeto-service/services/prova/cmd
+
+#RUN export GO111MODULE=on
+#RUN go install
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 \
+go build -o /go/bin/projeto-service/prova main.go
+
+EXPOSE 8083
+
+#WORKDIR /go/src/github.com/lcslucas/projeto-service/services/prova/cmd
+
+ENTRYPOINT [ "/go/bin/projeto-service/prova" ]
+
+FROM alpine:latest
+COPY --from=builder /go/bin/projeto-service/prova /bin/projeto-service/prova
+COPY ./.env /bin/projeto-service
+#WORKDIR /bin
+ENTRYPOINT [ "/bin/projeto-service/prova" ]

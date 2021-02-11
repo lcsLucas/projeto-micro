@@ -1,0 +1,25 @@
+# Instruções de como criar a imagem e o container
+# docker build --no-cache -t service-exercicios -f Dockerfile.exercicios .
+# docker container run -i --name micro-exercicios --net net-micro -p 8081:8081 service-exercicios
+FROM dependencies AS builder
+
+COPY ./services/exercicio /go/src/github.com/lcslucas/projeto-service/services/exercicio
+
+WORKDIR /go/src/github.com/lcslucas/projeto-service/services/exercicio/cmd
+
+#RUN export GO111MODULE=on
+#RUN go install
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 \
+go build -o /go/bin/projeto-service/exercicio main.go
+
+EXPOSE 8082
+
+#WORKDIR /go/src/github.com/lcslucas/projeto-service/services/exercicio/cmd
+
+ENTRYPOINT [ "/go/bin/projeto-service/exercicio" ]
+
+FROM alpine:latest
+COPY --from=builder /go/bin/projeto-service/exercicio /bin/projeto-service/exercicio
+COPY ./.env /bin/projeto-service
+#WORKDIR /bin
+ENTRYPOINT [ "/bin/projeto-service/exercicio" ]

@@ -10,12 +10,13 @@ import (
 )
 
 var (
-	grpcHost = "localhost"
+	grpcHost = "0.0.0.0"
 	grpcPort = "8081"
 )
 
 func TestServiceStatusService(t *testing.T) {
 	var conn *grpc.ClientConn
+
 	conn, err := grpc.Dial(fmt.Sprintf("%s:%s", grpcHost, grpcPort), grpc.WithInsecure())
 	if err != nil {
 		t.Fatalf("Não foi possível conectar: %s", err)

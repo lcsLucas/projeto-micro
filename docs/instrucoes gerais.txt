@@ -21,6 +21,7 @@
 
 ### Abrir o container do mongodb
 	- docker exec -it micro-mongo bash
+	- digitar "mongo" no terminal
 
 ### Abrir o container do postgresql
 	- docker exec -it micro-postgres psql -d micro -U postgres

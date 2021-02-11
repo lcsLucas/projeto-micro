@@ -1,0 +1,14 @@
+# docker build --no-cache -t dependencies -f ./Dockerfile.dependencies .
+FROM golang:1.15 AS dep
+	
+WORKDIR /go/src/github.com/lcslucas/projeto-service
+
+COPY ./go.mod .
+COPY ./go.sum .
+
+RUN export GO111MODULE=on
+RUN go mod download
+
+COPY ./config config
+COPY ./database database
+COPY ./utils utils

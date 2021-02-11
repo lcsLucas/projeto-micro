@@ -1,0 +1,14 @@
+https://www.nginx.com/blog/introduction-to-microservices/
+
+https://martinfowler.com/articles/microservices.html
+
+https://ewanvalentine.io/microservices-in-golang-part-1/
+
+https://propus.com.br/persistencia-poliglota-e-nosql-palestra-no-fisl/#:~:text=O%20termo%20persist%C3%AAncia%20poliglota%20se,multiplicar%20seu%20fator%20de%20sucesso.
+
+https://stack.desenvolvedor.expert/appendix/docker/rede.html
+
+https://medium.com/swlh/a-design-analysis-of-cloud-based-microservices-architecture-at-netflix-98836b2da45f
+
+- artigo sobre grpc
+https://blog.gopheracademy.com/advent-2017/go-grpc-beyond-basics/

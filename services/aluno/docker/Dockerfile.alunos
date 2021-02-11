@@ -1,0 +1,25 @@
+# Instruções de como criar a imagem e o container
+# docker build --no-cache -t service-alunos -f Dockerfile.alunos .
+# docker container run -i --name micro-alunos --net net-micro -p 8081:8081 service-alunos
+FROM dependencies AS builder
+
+COPY ./services/aluno /go/src/github.com/lcslucas/projeto-service/services/aluno
+
+WORKDIR /go/src/github.com/lcslucas/projeto-service/services/aluno/cmd
+
+#RUN export GO111MODULE=on
+#RUN go install
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 \
+go build -o /go/bin/projeto-service/aluno main.go
+
+EXPOSE 8081
+
+#WORKDIR /go/src/github.com/lcslucas/projeto-service/services/aluno/cmd
+
+ENTRYPOINT [ "/go/bin/projeto-service/aluno" ]
+
+FROM alpine:latest
+COPY --from=builder /go/bin/projeto-service/aluno /bin/projeto-service/aluno
+COPY ./.env /bin/projeto-service
+#WORKDIR /bin
+ENTRYPOINT [ "/bin/projeto-service/aluno" ]

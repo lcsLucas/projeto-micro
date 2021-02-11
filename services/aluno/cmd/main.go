@@ -51,7 +51,7 @@ func inicializeLogger() {
 }
 
 func inicializeVars() error {
-	err := godotenv.Load("../../../.env")
+	err := godotenv.Load("/bin/projeto-service/.env")
 	if err != nil {
 		return err
 	}
