@@ -5,6 +5,7 @@ go 1.15
 require (
 	github.com/go-kit/kit v0.10.0
 	github.com/golang/protobuf v1.4.3
+	github.com/gorilla/mux v1.8.0
 	github.com/jackc/pgproto3/v2 v2.0.7 // indirect
 	github.com/joho/godotenv v1.3.0
 	go.mongodb.org/mongo-driver v1.4.6
