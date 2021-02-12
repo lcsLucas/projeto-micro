@@ -51,7 +51,7 @@ func (e exercicioService) GetSomes(ctx context.Context, ids []uint64) ([]model.E
 
 	exeRes, err := e.repository.GetSomes(ctx, ids)
 	if err != nil {
-		level.Error(logger).Log("error", err)
+		level.Info(logger).Log("error", err)
 		return []model.Exercicio{}, err
 	}
 

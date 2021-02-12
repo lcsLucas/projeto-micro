@@ -59,7 +59,7 @@ func (p provaService) GetProvaAluno(ctx context.Context, idProva uint64, raAluno
 
 	prova, err := p.repository.GetProvaAluno(ctx, idProva, raAluno)
 	if err != nil {
-		level.Error(logger).Log("error", err)
+		level.Info(logger).Log("error", err)
 		return model.Prova{}, err
 	}
 

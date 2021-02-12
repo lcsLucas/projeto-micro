@@ -93,6 +93,27 @@ services:
       - postgres
     networks: 
       - net-micro
+  api:
+    stdin_open: true
+    tty: true
+    build: 
+      context: .
+      dockerfile: "./api/docker/Dockerfile.api"
+    container_name: micro-api
+    restart: always
+    working_dir: /bin/projeto-service
+    depends_on: 
+      - alunos
+      - exercicios
+      - provas
+    ports: 
+      - '9000:9000'
+    links: 
+      - alunos
+      - exercicios
+      - provas
+    networks: 
+      - net-micro
 networks:
   net-micro:
     external: true

@@ -44,7 +44,7 @@ func (a *alunoService) Get(ctx context.Context, ra string) (model.Aluno, error) 
 
 	aluRes, err := a.repository.Get(ctx, ra)
 	if err != nil {
-		level.Error(logger).Log("error", err)
+		level.Info(logger).Log("error", err)
 		return model.Aluno{}, err
 	}
 

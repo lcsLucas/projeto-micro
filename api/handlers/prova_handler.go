@@ -9,7 +9,6 @@ import (
 	"strconv"
 
 	"github.com/gorilla/mux"
-	"github.com/joho/godotenv"
 	"github.com/lcslucas/projeto-micro/services/prova/proto_prova"
 	"github.com/lcslucas/projeto-micro/utils"
 	"google.golang.org/grpc"
@@ -18,23 +17,25 @@ import (
 func ProvaStatusHandler(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
-	err := godotenv.Load("../../.env")
-	if err != nil {
-		log.Printf("Erro: não foi possível ler o .env: %v", err)
+	/*
+		err := godotenv.Load("../../.env")
+		if err != nil {
+			log.Printf("Erro: não foi possível ler o .env: %v", err)
 
-		w.WriteHeader(http.StatusUnprocessableEntity)
-		json.NewEncoder(w).Encode(utils.ResponseHTTP{
-			Status: false,
-			Erro:   "Erro inesperado",
-		})
+			w.WriteHeader(http.StatusUnprocessableEntity)
+			json.NewEncoder(w).Encode(utils.ResponseHTTP{
+				Status: false,
+				Erro:   "Erro inesperado",
+			})
 
-		return
-	}
+			return
+		}
+	*/
 
 	strConn := fmt.Sprintf("%s:%s", os.Getenv("PRO_GRPC_HOST"), os.Getenv("PRO_GRPC_PORT"))
 
 	var conn *grpc.ClientConn
-	conn, err = grpc.Dial(strConn, grpc.WithInsecure())
+	conn, err := grpc.Dial(strConn, grpc.WithInsecure())
 	if err != nil {
 		log.Printf("Não foi possível conectar: %s", err)
 
@@ -101,19 +102,6 @@ func ProvaGetProvaAlunoHandler(w http.ResponseWriter, r *http.Request) {
 	paramAlunoRA := vars["aluno_ra"]
 	if paramAlunoRA == "" {
 		log.Printf("Erro: não foi possível pegar o parametro [aluno_ra] da requisição: %v", err)
-
-		w.WriteHeader(http.StatusUnprocessableEntity)
-		json.NewEncoder(w).Encode(utils.ResponseHTTP{
-			Status: false,
-			Erro:   "Erro inesperado",
-		})
-
-		return
-	}
-
-	err = godotenv.Load("../../.env")
-	if err != nil {
-		log.Printf("Erro: não foi possível ler o .env: %v", err)
 
 		w.WriteHeader(http.StatusUnprocessableEntity)
 		json.NewEncoder(w).Encode(utils.ResponseHTTP{

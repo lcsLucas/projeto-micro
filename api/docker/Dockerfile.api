@@ -1,0 +1,24 @@
+# Instruções de como criar a imagem e o container
+# docker build -t micro_api -f Dockerfile.api .
+# docker container run -i --name micro-api --net net-micro -p 9000:9000 micro_api
+
+FROM dependencies AS builder
+
+COPY ./api /go/src/github.com/lcslucas/projeto-service/api
+COPY ./services/aluno/proto_aluno /go/src/github.com/lcslucas/projeto-service/services/aluno/proto_aluno
+COPY ./services/exercicio/proto_exercicio /go/src/github.com/lcslucas/projeto-service/services/exercicio/proto_exercicio
+COPY ./services/prova/proto_prova /go/src/github.com/lcslucas/projeto-service/services/prova/proto_prova
+
+WORKDIR /go/src/github.com/lcslucas/projeto-service/api/cmd
+
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 \
+go build -o /go/bin/projeto-service/api main.go
+
+EXPOSE 9000
+
+ENTRYPOINT [ "/go/bin/projeto-service/api" ]
+
+FROM alpine:latest
+COPY --from=builder /go/bin/projeto-service/api /bin/projeto-service/api
+COPY ./.env /bin/projeto-service
+ENTRYPOINT [ "/bin/projeto-service/api" ]
