@@ -22,8 +22,8 @@ type Prova struct {
 	Materia         string              `gorm:"-" json:"materia,omitempty"`
 	Bimestre        uint16              `gorm:"not null" json:"bimestre,omitempty"`
 	Finalizada      bool                `json:"finalizada,omitempty"`
-	Aluno           model.Aluno         `gorm:"-" json:"aluno,omitempty"`
-	Exercicios      []mod_exe.Exercicio `gorm:"-" json:"exercicios,omitempty"`
+	Aluno           model.Aluno         `gorm:"-" json:"aluno"`
+	Exercicios      []mod_exe.Exercicio `gorm:"-" json:"exercicios"`
 	ProvaAlunos     []ProvaAluno        `gorm:"-" json:"-"`
 	ProvaExercicios []ProvaExercicios   `gorm:"-" json:"-"`
 }

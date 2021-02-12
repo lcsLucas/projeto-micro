@@ -1,5 +1,5 @@
 # docker build --no-cache -t dependencies -f ./Dockerfile.dependencies .
-FROM golang:1.15 AS dep
+FROM golang:1.15-alpine AS dep
 	
 WORKDIR /go/src/github.com/lcslucas/projeto-service
 

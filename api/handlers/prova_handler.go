@@ -17,21 +17,6 @@ import (
 func ProvaStatusHandler(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
-	/*
-		err := godotenv.Load("../../.env")
-		if err != nil {
-			log.Printf("Erro: não foi possível ler o .env: %v", err)
-
-			w.WriteHeader(http.StatusUnprocessableEntity)
-			json.NewEncoder(w).Encode(utils.ResponseHTTP{
-				Status: false,
-				Erro:   "Erro inesperado",
-			})
-
-			return
-		}
-	*/
-
 	strConn := fmt.Sprintf("%s:%s", os.Getenv("PRO_GRPC_HOST"), os.Getenv("PRO_GRPC_PORT"))
 
 	var conn *grpc.ClientConn
