@@ -14,7 +14,7 @@ var provaRoutes = []Route{
 		Handler: middlewares.SetMiddlewareJSON(handlers.ProvaStatusHandler),
 	},
 	{
-		Uri:     "/provas/get/{prova_id}/aluno/{aluno_ra}",
+		Uri:     "/provas/{prova_id}/{aluno_ra}",
 		Method:  http.MethodGet,
 		Handler: middlewares.SetMiddlewareJSON(handlers.ProvaGetProvaAlunoHandler),
 	},
