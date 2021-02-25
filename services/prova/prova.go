@@ -73,8 +73,8 @@ func (p provaService) GetProvaAluno(ctx context.Context, idProva uint64, raAluno
 
 	// buscar aluno da prova
 	go func() {
-		level.Info(logger).Log("msg", "Iniciando comunicação com o serviço 'Aluno'...")
-		defer level.Info(logger).Log("msg", "Finalizada comunicação com o serviço 'Aluno'")
+		level.Info(logger).Log("msg", "Iniciando a comunicação com o serviço 'Aluno'...")
+		defer level.Info(logger).Log("msg", "Finalizada a comunicação com o serviço 'Aluno'")
 
 		strConn := fmt.Sprintf("%s:%s", os.Getenv("ALU_GRPC_HOST"), os.Getenv("ALU_GRPC_PORT"))
 
@@ -82,7 +82,7 @@ func (p provaService) GetProvaAluno(ctx context.Context, idProva uint64, raAluno
 		conn, err := grpc.Dial(strConn, grpc.WithInsecure())
 		if err != nil {
 			level.Info(logger).Log("error", err)
-			done <- *&protoAluno.Aluno{}
+			done <- &protoAluno.Aluno{}
 			return
 		}
 		defer conn.Close()
@@ -96,13 +96,13 @@ func (p provaService) GetProvaAluno(ctx context.Context, idProva uint64, raAluno
 		response, err := c.Get(ctx, &req)
 		if err != nil {
 			level.Info(logger).Log("error", err)
-			done <- *&protoAluno.Aluno{}
+			done <- &protoAluno.Aluno{}
 			return
 		}
 
 		if response.Error != "" {
 			level.Info(logger).Log("error", response.Error)
-			done <- *&protoAluno.Aluno{}
+			done <- &protoAluno.Aluno{}
 			return
 		}
 
@@ -112,8 +112,8 @@ func (p provaService) GetProvaAluno(ctx context.Context, idProva uint64, raAluno
 
 	// buscar exercícios da prova
 	go func() {
-		level.Info(logger).Log("msg", "Iniciando comunicação com o serviço 'Exercício'...")
-		defer level.Info(logger).Log("msg", "Finalizada comunicação com o serviço 'Exercício'")
+		level.Info(logger).Log("msg", "Iniciando a comunicação com o serviço 'Exercício'...")
+		defer level.Info(logger).Log("msg", "Finalizada a comunicação com o serviço 'Exercício'")
 
 		strConn := fmt.Sprintf("%s:%s", os.Getenv("EXE_GRPC_HOST"), os.Getenv("EXE_GRPC_PORT"))
 
