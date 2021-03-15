@@ -5,11 +5,13 @@ import (
 	"flag"
 	"fmt"
 	"net"
+	"net/http"
 	"os"
 	"os/signal"
 	"strconv"
 	"syscall"
 
+	"github.com/lcslucas/projeto-micro/services/aluno/instrumentation"
 	proto "github.com/lcslucas/projeto-micro/services/aluno/proto_aluno"
 	"github.com/lcslucas/projeto-micro/services/aluno/repository"
 
@@ -18,6 +20,9 @@ import (
 	"github.com/lcslucas/projeto-micro/services/aluno/endpoints"
 	"github.com/lcslucas/projeto-micro/services/aluno/transport"
 	"google.golang.org/grpc"
+
+	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 
 	"github.com/lcslucas/projeto-micro/services/aluno/migrations"
 
@@ -107,13 +112,52 @@ func main() {
 	defer conn.Disconnect(ctx)
 	//* Inicializando Conexão com o banco de dados *//
 
-	//* Inicializando Conexão gRPC do serviço Aluno *//
+	//* Definindo o serviço Aluno *//
+
+	requestCount := prometheus.NewCounter(
+		prometheus.CounterOpts{
+			Namespace: "projeto_micro",
+			Name:      "request_count_aluno",
+			Help:      "Número de requisições recebido pelo serviço Aluno",
+		},
+	)
+
+	requestLatency := prometheus.NewHistogram(
+		prometheus.HistogramOpts{
+			Namespace: "projeto_micro",
+			Name:      "request_latency_microsecods_aluno",
+			Help:      "Durações das requisições feita para o serviço Aluno",
+		},
+	)
+
+	prometheus.MustRegister(requestCount)
+	prometheus.MustRegister(requestLatency)
+
+	/*
+		fieldKeys := []string{"method", "error"}
+		requestCount := kitprometheus.NewCounterFrom(stdprometheus.CounterOpts{
+			Namespace: "projeto_micro",
+			Subsystem: "service_aluno",
+			Name:      "request_count_aluno",
+			Help:      "Número de requisições recebido pelo serviço Aluno",
+		}, fieldKeys)
+		requestLatency := kitprometheus.NewSummaryFrom(stdprometheus.SummaryOpts{
+			Namespace: "projeto_micro",
+			Subsystem: "service_aluno",
+			Name:      "request_latency_microsecods_aluno",
+			Help:      "Total de durações de requisições feita para o serviço Aluno",
+		}, fieldKeys)
+	*/
+
 	var service aluno.Service
 	{
 		repository := repository.NewRepository(conn, logger, configDB)
 		service = aluno.NewService(repository, logger)
+		service = instrumentation.NewInstrumentation(requestCount, requestLatency, service)
 	}
+	//* Definindo o serviço Aluno *//
 
+	//* Inicializando Conexão gRPC do serviço Aluno *//
 	var (
 		eps        = endpoints.NewEndpointSet(service)
 		grpcServer = transport.NewGrpcServer(eps)
@@ -138,6 +182,13 @@ func main() {
 		}
 	}()
 	//* Inicializando Conexão gRPC do serviço Aluno *//
+
+	//* Inicializando Conexão http do serviço Aluno *//
+	go func() {
+		http.Handle("/metrics", promhttp.Handler())
+		logger.Log("err", http.ListenAndServe(":9999", nil))
+	}()
+	//* Inicializando Conexão http do serviço Aluno *//
 
 	//* Notifica o programa quando for encerrado *//
 	errs := make(chan error)

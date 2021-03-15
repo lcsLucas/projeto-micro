@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"time"
 
 	"github.com/lcslucas/projeto-micro/services/aluno/model"
 
@@ -39,8 +40,11 @@ func (a *alunoService) Alter(ctx context.Context, alu model.Aluno) (bool, error)
 }
 
 func (a *alunoService) Get(ctx context.Context, ra string) (model.Aluno, error) {
-	logger := log.With(a.logger, "method", "Get")
-	level.Info(logger).Log("msg", fmt.Sprintf("Buscando o registro com RA: %s", ra))
+	logger := log.With(a.logger, "method", "Get", "param", ra)
+
+	defer func(begin time.Time) {
+		level.Info(logger).Log("ended", time.Now(), "duration", fmt.Sprintf("%vs", time.Since(begin).Seconds()))
+	}(time.Now())
 
 	aluRes, err := a.repository.Get(ctx, ra)
 	if err != nil {
@@ -48,7 +52,6 @@ func (a *alunoService) Get(ctx context.Context, ra string) (model.Aluno, error) 
 		return model.Aluno{}, err
 	}
 
-	level.Info(logger).Log("msg", fmt.Sprintf("%v", aluRes))
 	return aluRes, nil
 }
 

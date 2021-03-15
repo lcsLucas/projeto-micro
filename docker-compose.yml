@@ -50,6 +50,7 @@ services:
       - postgres
     ports:
       - '8081:8081'
+      - '9999:9999'
     links:
       - mongo
       - postgres
@@ -112,6 +113,40 @@ services:
       - alunos
       - exercicios
       - provas
+    networks: 
+      - net-micro
+  prometheus:
+    image: prom/prometheus
+    container_name: micro-prometheus
+    restart: always
+    ports:
+      - 9090:9090
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+    volumes:
+      - "./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml"
+    links: 
+      - api
+      - alunos
+      - exercicios
+      - provas
+    depends_on: 
+      - api
+      - alunos
+      - exercicios
+      - provas
+    networks: 
+      - net-micro
+  grafana:
+    image: "grafana/grafana:5.4.3"
+    container_name: micro-grafana
+    restart: always
+    ports:
+      - 3000:3000
+    volumes: 
+      - "./data/grafana:/var/lib/grafana:cached"
+    depends_on: 
+      - prometheus
     networks: 
       - net-micro
 networks:

@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"os"
 	"reflect"
+	"time"
 
 	"github.com/go-kit/kit/log"
 	"github.com/go-kit/kit/log/level"
@@ -47,15 +48,21 @@ func (p provaService) Alter(ctx context.Context, pro model.Prova) (bool, error) 
 }
 
 func (p provaService) Get(ctx context.Context, id uint64) (model.Prova, error) {
-	logger := log.With(p.logger, "method", "Get")
-	level.Info(logger).Log("msg", fmt.Sprintf("Buscando o registro com ID: %d", id))
+	logger := log.With(p.logger, "method", "Get", "param", id)
+
+	defer func(begin time.Time) {
+		level.Info(logger).Log("ended", time.Now(), "duration", time.Since(begin))
+	}(time.Now())
 
 	return model.Prova{}, errors.New("Not implemented")
 }
 
 func (p provaService) GetProvaAluno(ctx context.Context, idProva uint64, raAluno string) (model.Prova, error) {
-	logger := log.With(p.logger, "method", "GetProvaAluno")
-	level.Info(logger).Log("msg", fmt.Sprintf("Buscando o registro com ID: %d do RA: %s", idProva, raAluno))
+	logger := log.With(p.logger, "method", "GetProvaAluno", "paramProvaID", idProva, "paramAlunoRA", raAluno)
+
+	defer func(begin time.Time) {
+		level.Info(logger).Log("ended", time.Now(), "duration", fmt.Sprintf("%vs", time.Since(begin).Seconds()))
+	}(time.Now())
 
 	prova, err := p.repository.GetProvaAluno(ctx, idProva, raAluno)
 	if err != nil {

@@ -2,6 +2,10 @@ https://www.nginx.com/blog/introduction-to-microservices/
 
 https://martinfowler.com/articles/microservices.html
 
+https://martinfowler.com/bliki/MonolithFirst.html
+
+https://www.nginx.com/blog/microservices-at-netflix-architectural-best-practices/
+
 https://ewanvalentine.io/microservices-in-golang-part-1/
 
 https://propus.com.br/persistencia-poliglota-e-nosql-palestra-no-fisl/#:~:text=O%20termo%20persist%C3%AAncia%20poliglota%20se,multiplicar%20seu%20fator%20de%20sucesso.

@@ -1,6 +1,19 @@
 # Instruções de como criar a imagem e o container
 # docker build -t micro_api -f Dockerfile.api .
 # docker container run -i --name micro-api --net net-micro -p 9000:9000 micro_api
+FROM golang:1.15-alpine AS dependencies
+	
+WORKDIR /go/src/github.com/lcslucas/projeto-service
+
+COPY ./go.mod .
+COPY ./go.sum .
+
+RUN export GO111MODULE=on
+RUN go mod download
+
+COPY ./config config
+COPY ./database database
+COPY ./utils utils
 
 FROM dependencies AS builder
 

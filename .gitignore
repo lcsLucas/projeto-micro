@@ -1,1 +1,11 @@
-data
+data/postgresql/*
+!data/postgresql/.gitignore
+
+data/mongodb/*
+!data/mongodb/.gitignore
+
+data/prometheus/*
+!data/prometheus/.gitignore
+
+data/grafana/*
+!data/grafana/.gitignore

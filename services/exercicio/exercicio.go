@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"time"
 
 	"github.com/go-kit/kit/log"
 	"github.com/go-kit/kit/log/level"
@@ -46,8 +47,11 @@ func (e exercicioService) Get(ctx context.Context, id uint64) (model.Exercicio, 
 }
 
 func (e exercicioService) GetSomes(ctx context.Context, ids []uint64) ([]model.Exercicio, error) {
-	logger := log.With(e.logger, "method", "GetSomes")
-	level.Info(logger).Log("msg", fmt.Sprintf("Buscando os exercícios com ids: %v", ids))
+	logger := log.With(e.logger, "method", "GetSomes", "param", ids)
+
+	defer func(begin time.Time) {
+		level.Info(logger).Log("ended", time.Now(), "duration", fmt.Sprintf("%vs", time.Since(begin).Seconds()))
+	}(time.Now())
 
 	exeRes, err := e.repository.GetSomes(ctx, ids)
 	if err != nil {

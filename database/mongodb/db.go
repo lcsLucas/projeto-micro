@@ -17,7 +17,7 @@ func Connect(ctx context.Context, c config.ConfigDB) (*mongo.Client, error) {
 		Password: c.Password,
 	}
 
-	fmt.Println(fmt.Sprintf("conectando banco em: %s://%s:%s@%s:%s/%s?authMechanism=SCRAM-SHA-1", c.Driver, c.User, c.Password, c.Host, c.Port, c.DBName))
+	fmt.Println(fmt.Sprintf("conectando no banco em: %s://%s:%s@%s:%s/%s?authMechanism=SCRAM-SHA-1", c.Driver, c.User, c.Password, c.Host, c.Port, c.DBName))
 	client, err := mongo.NewClient(options.Client().ApplyURI(fmt.Sprintf("%s://%s:%s@%s:%s", c.Driver, c.User, c.Password, c.Host, c.Port)).SetAuth(credential))
 	if err != nil {
 		return nil, err

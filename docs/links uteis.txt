@@ -10,3 +10,6 @@
 
 # Trabalhando com Dockerfile
     - https://docs.docker.com/develop/develop-images/dockerfile_best-practices/
+
+# Trabalhando com métricas na aplicação utilizando prometheus + grafana
+    - https://eltonminetto.dev/post/2020-03-12-golang-prometheus/

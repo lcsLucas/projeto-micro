@@ -1,11 +1,27 @@
 package routes
 
 import (
-	"log"
 	"net/http"
+	"os"
 
+	"github.com/go-kit/kit/log"
+	"github.com/go-kit/kit/log/level"
 	"github.com/gorilla/mux"
+
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
+
+var Logger log.Logger
+
+func InicializeLogger() {
+	Logger = log.NewLogfmtLogger(os.Stderr)
+	Logger = log.NewSyncLogger(Logger)
+	Logger = log.With(Logger,
+		"service", "api",
+		"hour", log.DefaultTimestampUTC,
+		"caller", log.DefaultCaller,
+	)
+}
 
 type Route struct {
 	Uri     string
@@ -27,8 +43,7 @@ func Load() []Route {
 
 func loggingMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		log.Println("> Rota acessada...")
-		log.Println("Host:", r.Host, "URI:", r.RequestURI, "Method:", r.Method)
+		level.Info(Logger).Log("msg", "Requisitando...", "host", r.Host, "uri", r.RequestURI, "method", r.Method)
 		// Call the next handler, which can be another middleware in the chain, or the final handler.
 		next.ServeHTTP(w, r)
 	})
@@ -38,6 +53,8 @@ func SetupRoutes(r *mux.Router) *mux.Router {
 	for _, route := range Load() {
 		r.HandleFunc(route.Uri, route.Handler).Methods(route.Method)
 	}
+
+	r.Path("/metrics").Handler(promhttp.Handler())
 
 	r.Use(loggingMiddleware)
 
