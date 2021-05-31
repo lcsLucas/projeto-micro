@@ -54,9 +54,9 @@ func SetupRoutes(r *mux.Router) *mux.Router {
 		r.HandleFunc(route.Uri, route.Handler).Methods(route.Method)
 	}
 
-	r.Path("/metrics").Handler(promhttp.Handler())
-
 	r.Use(loggingMiddleware)
+
+	r.Path("/metrics").Handler(promhttp.Handler())
 
 	return r
 }

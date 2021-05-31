@@ -10,10 +10,13 @@ import (
 	"os/signal"
 	"strconv"
 	"syscall"
+	"time"
 
+	"github.com/gorilla/mux"
 	"github.com/lcslucas/projeto-micro/services/aluno/instrumentation"
 	proto "github.com/lcslucas/projeto-micro/services/aluno/proto_aluno"
 	"github.com/lcslucas/projeto-micro/services/aluno/repository"
+	"github.com/rs/cors"
 
 	"github.com/lcslucas/projeto-micro/config"
 	"github.com/lcslucas/projeto-micro/services/aluno"
@@ -86,6 +89,74 @@ func inicializeDB(ctx context.Context) error {
 	return migrations.ExecMigrationAlunos(ctx, configDB.DBName, conn)
 }
 
+func inicializeMetrics() (cMethods *prometheus.CounterVec, lMethods instrumentation.LatencyMethods) {
+
+	cMethods = prometheus.NewCounterVec(
+		prometheus.CounterOpts{
+			Namespace: "service_aluno",
+			Name:      "request_count",
+			Help:      "Número de requisições recebidas no serviço Aluno",
+		},
+		[]string{"method"},
+	)
+
+	lMethods = instrumentation.LatencyMethods{
+		LatCreate: prometheus.NewHistogram(
+			prometheus.HistogramOpts{
+				Namespace: "service_aluno_create",
+				Name:      "latency_seconds",
+				Help:      "Durações de requisições recebidas no método Create do serviço Aluno",
+			},
+		),
+		LatAlter: prometheus.NewHistogram(
+			prometheus.HistogramOpts{
+				Namespace: "service_aluno_alter",
+				Name:      "latency_seconds",
+				Help:      "Durações de requisições recebidas no método Alter do serviço Aluno",
+			},
+		),
+		LatGet: prometheus.NewHistogram(
+			prometheus.HistogramOpts{
+				Namespace: "service_aluno_get",
+				Name:      "latency_seconds",
+				Help:      "Durações de requisições recebidas no método Get do serviço Aluno",
+			},
+		),
+		LatGetAll: prometheus.NewHistogram(
+			prometheus.HistogramOpts{
+				Namespace: "service_aluno_getAll",
+				Name:      "latency_seconds",
+				Help:      "Durações de requisições recebidas no método GetAll do serviço Aluno",
+			},
+		),
+		LatDelete: prometheus.NewHistogram(
+			prometheus.HistogramOpts{
+				Namespace: "service_aluno_delete",
+				Name:      "latency_seconds",
+				Help:      "Durações de requisições recebidas no método Delete do serviço Aluno",
+			},
+		),
+		LatStatusService: prometheus.NewHistogram(
+			prometheus.HistogramOpts{
+				Namespace: "service_aluno_status_service",
+				Name:      "latency_seconds",
+				Help:      "Durações de requisições recebidas no método StatusService do serviço Aluno",
+			},
+		),
+	}
+
+	prometheus.MustRegister(cMethods)
+
+	prometheus.MustRegister(lMethods.LatCreate)
+	prometheus.MustRegister(lMethods.LatAlter)
+	prometheus.MustRegister(lMethods.LatGet)
+	prometheus.MustRegister(lMethods.LatGetAll)
+	prometheus.MustRegister(lMethods.LatDelete)
+	prometheus.MustRegister(lMethods.LatStatusService)
+
+	return
+}
+
 func main() {
 	var err error
 	ctx := context.Background()
@@ -112,48 +183,16 @@ func main() {
 	defer conn.Disconnect(ctx)
 	//* Inicializando Conexão com o banco de dados *//
 
+	//* Inicializando métricas do serviço Aluno *//
+	countsService, latencysService := inicializeMetrics()
+	//* Inicializando métricas do serviço Aluno *//
+
 	//* Definindo o serviço Aluno *//
-
-	requestCount := prometheus.NewCounter(
-		prometheus.CounterOpts{
-			Namespace: "projeto_micro",
-			Name:      "request_count_aluno",
-			Help:      "Número de requisições recebido pelo serviço Aluno",
-		},
-	)
-
-	requestLatency := prometheus.NewHistogram(
-		prometheus.HistogramOpts{
-			Namespace: "projeto_micro",
-			Name:      "request_latency_microsecods_aluno",
-			Help:      "Durações das requisições feita para o serviço Aluno",
-		},
-	)
-
-	prometheus.MustRegister(requestCount)
-	prometheus.MustRegister(requestLatency)
-
-	/*
-		fieldKeys := []string{"method", "error"}
-		requestCount := kitprometheus.NewCounterFrom(stdprometheus.CounterOpts{
-			Namespace: "projeto_micro",
-			Subsystem: "service_aluno",
-			Name:      "request_count_aluno",
-			Help:      "Número de requisições recebido pelo serviço Aluno",
-		}, fieldKeys)
-		requestLatency := kitprometheus.NewSummaryFrom(stdprometheus.SummaryOpts{
-			Namespace: "projeto_micro",
-			Subsystem: "service_aluno",
-			Name:      "request_latency_microsecods_aluno",
-			Help:      "Total de durações de requisições feita para o serviço Aluno",
-		}, fieldKeys)
-	*/
-
 	var service aluno.Service
 	{
 		repository := repository.NewRepository(conn, logger, configDB)
 		service = aluno.NewService(repository, logger)
-		service = instrumentation.NewInstrumentation(requestCount, requestLatency, service)
+		service = instrumentation.NewInstrumentation(countsService, latencysService, service)
 	}
 	//* Definindo o serviço Aluno *//
 
@@ -185,8 +224,37 @@ func main() {
 
 	//* Inicializando Conexão http do serviço Aluno *//
 	go func() {
-		http.Handle("/metrics", promhttp.Handler())
-		logger.Log("err", http.ListenAndServe(":9999", nil))
+		/*
+			http.Handle("/metrics", promhttp.Handler())
+			logger.Log("err", http.ListenAndServe(":9999", nil))
+		*/
+
+		r := mux.NewRouter().StrictSlash(true)
+
+		handler := cors.Default().Handler(r)
+
+		c := cors.New(cors.Options{
+			AllowedOrigins:   []string{"*"},
+			AllowedMethods:   []string{"GET", "HEAD", "POST", "PUT", "OPTIONS", "DELETE"},
+			AllowedHeaders:   []string{"Access-Control-Allow-Credentials", "Access-Control-Allow-Origin", "Authorization", "Content-Type"},
+			AllowCredentials: true,
+			Debug:            false,
+		})
+
+		handler = c.Handler(handler)
+
+		srv := &http.Server{
+			Handler: handler,
+			Addr:    fmt.Sprintf("%s:9999", hostGrpcAlu),
+			// Good practice to set timeouts to avoid Slowloris attacks.
+			WriteTimeout: time.Second * 15,
+			ReadTimeout:  time.Second * 15,
+			IdleTimeout:  time.Second * 60,
+		}
+
+		r.Path("/metrics").Handler(promhttp.Handler())
+		logger.Log("error", srv.ListenAndServe())
+
 	}()
 	//* Inicializando Conexão http do serviço Aluno *//
 

@@ -13,3 +13,6 @@
 
 # Trabalhando com métricas na aplicação utilizando prometheus + grafana
     - https://eltonminetto.dev/post/2020-03-12-golang-prometheus/
+
+# Como utilizar o JWT sem expirar o token
+    - https://hasura.io/blog/best-practices-of-using-jwt-with-graphql/#logout_token_invalidation    

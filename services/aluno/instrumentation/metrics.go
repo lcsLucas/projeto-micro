@@ -9,25 +9,45 @@ import (
 	"github.com/prometheus/client_golang/prometheus"
 )
 
+/*
+type CountMethods struct {
+	CountCreate        prometheus.Counter
+	CountAlter         prometheus.Counter
+	CountGet           prometheus.Counter
+	CountGetAll        prometheus.Counter
+	CountDelete        prometheus.Counter
+	CountStatusService prometheus.Counter
+}
+*/
+
+type LatencyMethods struct {
+	LatCreate        prometheus.Histogram
+	LatAlter         prometheus.Histogram
+	LatGet           prometheus.Histogram
+	LatGetAll        prometheus.Histogram
+	LatDelete        prometheus.Histogram
+	LatStatusService prometheus.Histogram
+}
+
 type instrumentationMiddleware struct {
-	requestCount   prometheus.Counter
-	requestLatency prometheus.Histogram
+	countMethods   *prometheus.CounterVec
+	latencyMethods LatencyMethods
 	next           aluno.Service
 }
 
-func NewInstrumentation(rCount prometheus.Counter, rLatency prometheus.Histogram, nService aluno.Service) aluno.Service {
+func NewInstrumentation(cMethods *prometheus.CounterVec, lMethods LatencyMethods, nService aluno.Service) aluno.Service {
 	return &instrumentationMiddleware{
-		requestCount:   rCount,
-		requestLatency: rLatency,
+		countMethods:   cMethods,
+		latencyMethods: lMethods,
 		next:           nService,
 	}
 }
 
 func (im instrumentationMiddleware) Create(ctx context.Context, alu model.Aluno) (output bool, err error) {
 	defer func(begin time.Time) {
-		//lvs := []string{"method", "create", "error", fmt.Sprint(err != nil)}
-		im.requestCount.Add(1)
-		im.requestLatency.Observe(time.Since(begin).Seconds())
+		im.countMethods.WithLabelValues("total").Inc()
+		im.countMethods.WithLabelValues("create").Inc()
+		im.latencyMethods.LatCreate.Observe(time.Since(begin).Seconds())
 	}(time.Now())
 
 	output, err = im.next.Create(ctx, alu)
@@ -36,9 +56,9 @@ func (im instrumentationMiddleware) Create(ctx context.Context, alu model.Aluno)
 
 func (im instrumentationMiddleware) Alter(ctx context.Context, alu model.Aluno) (output bool, err error) {
 	defer func(begin time.Time) {
-		//lvs := []string{"method", "alter", "error", fmt.Sprint(err != nil)}
-		im.requestCount.Add(1)
-		im.requestLatency.Observe(time.Since(begin).Seconds())
+		im.countMethods.WithLabelValues("total").Inc()
+		im.countMethods.WithLabelValues("alter").Inc()
+		im.latencyMethods.LatAlter.Observe(time.Since(begin).Seconds())
 	}(time.Now())
 
 	output, err = im.next.Alter(ctx, alu)
@@ -47,9 +67,9 @@ func (im instrumentationMiddleware) Alter(ctx context.Context, alu model.Aluno) 
 
 func (im instrumentationMiddleware) Get(ctx context.Context, ra string) (output model.Aluno, err error) {
 	defer func(begin time.Time) {
-		//lvs := []string{"method", "get", "error", fmt.Sprint(err != nil)}
-		im.requestCount.Add(1)
-		im.requestLatency.Observe(time.Since(begin).Seconds())
+		im.countMethods.WithLabelValues("total").Inc()
+		im.countMethods.WithLabelValues("get").Inc()
+		im.latencyMethods.LatGet.Observe(time.Since(begin).Seconds())
 	}(time.Now())
 
 	output, err = im.next.Get(ctx, ra)
@@ -58,9 +78,9 @@ func (im instrumentationMiddleware) Get(ctx context.Context, ra string) (output 
 
 func (im instrumentationMiddleware) GetAll(ctx context.Context, page uint32) (output []model.Aluno, err error) {
 	defer func(begin time.Time) {
-		//lvs := []string{"method", "getAll", "error", fmt.Sprint(err != nil)}
-		im.requestCount.Add(1)
-		im.requestLatency.Observe(time.Since(begin).Seconds())
+		im.countMethods.WithLabelValues("total").Inc()
+		im.countMethods.WithLabelValues("getAll").Inc()
+		im.latencyMethods.LatGetAll.Observe(time.Since(begin).Seconds())
 	}(time.Now())
 
 	output, err = im.next.GetAll(ctx, page)
@@ -69,9 +89,9 @@ func (im instrumentationMiddleware) GetAll(ctx context.Context, page uint32) (ou
 
 func (im instrumentationMiddleware) Delete(ctx context.Context, ra string) (output bool, err error) {
 	defer func(begin time.Time) {
-		//lvs := []string{"method", "delete", "error", fmt.Sprint(err != nil)}
-		im.requestCount.Add(1)
-		im.requestLatency.Observe(time.Since(begin).Seconds())
+		im.countMethods.WithLabelValues("total").Inc()
+		im.countMethods.WithLabelValues("delete").Inc()
+		im.latencyMethods.LatDelete.Observe(time.Since(begin).Seconds())
 	}(time.Now())
 
 	output, err = im.next.Delete(ctx, ra)
@@ -80,9 +100,9 @@ func (im instrumentationMiddleware) Delete(ctx context.Context, ra string) (outp
 
 func (im instrumentationMiddleware) StatusService(ctx context.Context) (output bool, err error) {
 	defer func(begin time.Time) {
-		//lvs := []string{"method", "statusService", "error", fmt.Sprint(err != nil)}
-		im.requestCount.Add(1)
-		im.requestLatency.Observe(time.Since(begin).Seconds())
+		im.countMethods.WithLabelValues("total").Inc()
+		im.countMethods.WithLabelValues("statusService").Inc()
+		im.latencyMethods.LatStatusService.Observe(time.Since(begin).Seconds())
 	}(time.Now())
 
 	output, err = im.next.StatusService(ctx)
