@@ -5,7 +5,19 @@ scrape_configs:
     static_configs:
       - targets:
         - alunos:9999
-  - job_name: client
+  - job_name: exercicio
+    scrape_interval: 15s
+    metrics_path: /metrics
+    static_configs:
+      - targets:
+        - exercicios:9998
+  - job_name: prova
+    scrape_interval: 15s
+    metrics_path: /metrics
+    static_configs:
+      - targets:
+        - provas:9997
+  - job_name: prometheus
     scrape_interval: 15s
     metrics_path: /metrics
     static_configs:

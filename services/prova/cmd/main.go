@@ -5,14 +5,20 @@ import (
 	"flag"
 	"fmt"
 	"net"
+	"net/http"
 	"os"
 	"os/signal"
 	"strconv"
 	"syscall"
+	"time"
 
 	"github.com/go-kit/kit/log"
 	"github.com/go-kit/kit/log/level"
+	"github.com/gorilla/mux"
 	"github.com/joho/godotenv"
+	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
+	"github.com/rs/cors"
 
 	"google.golang.org/grpc"
 
@@ -23,6 +29,7 @@ import (
 	"github.com/lcslucas/projeto-micro/config"
 	"github.com/lcslucas/projeto-micro/services/prova"
 	"github.com/lcslucas/projeto-micro/services/prova/endpoints"
+	"github.com/lcslucas/projeto-micro/services/prova/instrumentation"
 	"github.com/lcslucas/projeto-micro/services/prova/migrations"
 	proto "github.com/lcslucas/projeto-micro/services/prova/proto_prova"
 	"github.com/lcslucas/projeto-micro/services/prova/repository"
@@ -37,6 +44,7 @@ var logger log.Logger
 
 var hostGrpcProva string
 var portGrpcProva int
+var portMetricProva int
 
 func inicializeLogger() {
 	logger = log.NewLogfmtLogger(os.Stderr)
@@ -65,6 +73,7 @@ func inicializeVars() error {
 
 	hostGrpcProva = os.Getenv("PRO_GRPC_HOST")
 	portGrpcProva, _ = strconv.Atoi(os.Getenv("PRO_GRPC_PORT"))
+	portMetricProva, _ = strconv.Atoi(os.Getenv("PRO_METRIC_PORT"))
 
 	return nil
 }
@@ -92,9 +101,86 @@ func inicializeDB(ctx context.Context) error {
 	return migrations.ExecMigrationProva(ctx, configDB.DBName, conn)
 }
 
+func inicializeMetrics() (cMethods *prometheus.CounterVec, lMethods instrumentation.LatencyMethods) {
+
+	cMethods = prometheus.NewCounterVec(
+		prometheus.CounterOpts{
+			Namespace: "service_prova",
+			Name:      "request_count",
+			Help:      "Número de requisições recebidas no serviço Prova",
+		},
+		[]string{"method"},
+	)
+
+	lMethods = instrumentation.LatencyMethods{
+		LatCreate: prometheus.NewHistogram(
+			prometheus.HistogramOpts{
+				Namespace: "service_prova_create",
+				Name:      "latency_seconds",
+				Help:      "Durações de requisições recebidas no método Create do serviço Prova",
+			},
+		),
+		LatAlter: prometheus.NewHistogram(
+			prometheus.HistogramOpts{
+				Namespace: "service_prova_alter",
+				Name:      "latency_seconds",
+				Help:      "Durações de requisições recebidas no método Alter do serviço Prova",
+			},
+		),
+		LatGet: prometheus.NewHistogram(
+			prometheus.HistogramOpts{
+				Namespace: "service_prova_get",
+				Name:      "latency_seconds",
+				Help:      "Durações de requisições recebidas no método Get do serviço Prova",
+			},
+		),
+		LatGetProvaAluno: prometheus.NewHistogram(
+			prometheus.HistogramOpts{
+				Namespace: "service_prova_getProvaAluno",
+				Name:      "latency_seconds",
+				Help:      "Durações de requisições recebidas no método GetProvaAluno do serviço Prova",
+			},
+		),
+		LatGetAll: prometheus.NewHistogram(
+			prometheus.HistogramOpts{
+				Namespace: "service_prova_getAll",
+				Name:      "latency_seconds",
+				Help:      "Durações de requisições recebidas no método GetAll do serviço Prova",
+			},
+		),
+		LatDelete: prometheus.NewHistogram(
+			prometheus.HistogramOpts{
+				Namespace: "service_prova_delete",
+				Name:      "latency_seconds",
+				Help:      "Durações de requisições recebidas no método Delete do serviço Prova",
+			},
+		),
+		LatStatusService: prometheus.NewHistogram(
+			prometheus.HistogramOpts{
+				Namespace: "service_prova_status_service",
+				Name:      "latency_seconds",
+				Help:      "Durações de requisições recebidas no método StatusService do serviço Prova",
+			},
+		),
+	}
+
+	prometheus.MustRegister(cMethods)
+
+	prometheus.MustRegister(lMethods.LatCreate)
+	prometheus.MustRegister(lMethods.LatAlter)
+	prometheus.MustRegister(lMethods.LatGet)
+	prometheus.MustRegister(lMethods.LatGetProvaAluno)
+	prometheus.MustRegister(lMethods.LatGetAll)
+	prometheus.MustRegister(lMethods.LatDelete)
+	prometheus.MustRegister(lMethods.LatStatusService)
+
+	return
+
+}
+
 func main() {
 	var err error
-	ctx := context.Background()
+	ctx := context.TODO()
 
 	//* Inicializando Logger *//
 	inicializeLogger()
@@ -110,7 +196,7 @@ func main() {
 	}
 	//* Inicializando variáveis *//
 
-	//* Iniciando conexão com o banco*//
+	//* Inicializando Conexão com o banco de dados *//
 	err = inicializeDB(ctx)
 	if err != nil {
 		level.Error(logger).Log("exit", err)
@@ -119,15 +205,21 @@ func main() {
 
 	sqlDB, _ := conn.DB()
 	defer sqlDB.Close()
-	//*Iniciando conexão com o banco*//
+	//* Inicializando Conexão com o banco de dados *//
 
-	//* Inicializando Conexão gRPC do serviço Prova *//
+	//* Inicializando métricas do serviço Prova *//
+	countsService, latencysService := inicializeMetrics()
+	//* Inicializando métricas do serviço Prova *//
+
+	//* Definindo o serviço Prova *//
 	var service prova.Service
 	{
 		repository := repository.NewRepository(conn, logger, configDB)
 		service = prova.NewService(repository, logger)
+		service = instrumentation.NewInstrumentation(countsService, latencysService, service)
 	}
 
+	//* Inicializando Conexão gRPC do serviço Prova *//
 	var (
 		eps        = endpoints.NewEndpointSet(service)
 		grpcServer = transport.NewGrpcServer(eps)
@@ -151,8 +243,39 @@ func main() {
 			os.Exit(1)
 		}
 	}()
-
 	//* Inicializando Conexão gRPC do serviço Prova *//
+
+	//* Inicializando Conexão http do serviço Prova *//
+	go func() {
+
+		r := mux.NewRouter().StrictSlash(true)
+
+		handler := cors.Default().Handler(r)
+
+		c := cors.New(cors.Options{
+			AllowedOrigins:   []string{"*"},
+			AllowedMethods:   []string{"GET", "HEAD", "POST", "PUT", "OPTIONS", "DELETE"},
+			AllowedHeaders:   []string{"Access-Control-Allow-Credentials", "Access-Control-Allow-Origin", "Authorization", "Content-Type"},
+			AllowCredentials: true,
+			Debug:            false,
+		})
+
+		handler = c.Handler(handler)
+
+		srv := &http.Server{
+			Handler: handler,
+			Addr:    fmt.Sprintf("%s:%d", hostGrpcProva, portMetricProva),
+			// Good practice to set timeouts to avoid Slowloris attacks.
+			WriteTimeout: time.Second * 15,
+			ReadTimeout:  time.Second * 15,
+			IdleTimeout:  time.Second * 60,
+		}
+
+		r.Path("/metrics").Handler(promhttp.Handler())
+		logger.Log("error", srv.ListenAndServe())
+
+	}()
+	//* Inicializando Conexão http do serviço Prova *//
 
 	//* Notifica o programa quando for encerrado *//
 	errs := make(chan error)

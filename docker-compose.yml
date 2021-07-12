@@ -72,6 +72,7 @@ services:
       - postgres
     ports: 
       - '8082:8082'
+      - '9998:9998'
     links:
       - mongo
       - postgres
@@ -91,6 +92,7 @@ services:
       - postgres
     ports: 
       - '8083:8083'
+      - '9997:9997'
     links:
       - mongo
       - postgres

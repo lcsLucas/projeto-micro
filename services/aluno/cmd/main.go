@@ -47,6 +47,7 @@ var logger log.Logger
 
 var hostGrpcAlu string
 var portGrpcAlu int
+var portMetricAlu int
 
 func inicializeLogger() {
 	logger = log.NewLogfmtLogger(os.Stderr)
@@ -75,6 +76,7 @@ func inicializeVars() error {
 
 	hostGrpcAlu = os.Getenv("ALU_GRPC_HOST")
 	portGrpcAlu, _ = strconv.Atoi(os.Getenv("ALU_GRPC_PORT"))
+	portMetricAlu, _ = strconv.Atoi(os.Getenv("ALU_METRIC_PORT"))
 
 	return nil
 }
@@ -159,7 +161,7 @@ func inicializeMetrics() (cMethods *prometheus.CounterVec, lMethods instrumentat
 
 func main() {
 	var err error
-	ctx := context.Background()
+	ctx := context.TODO()
 
 	//* Inicializando Logger *//
 	inicializeLogger()
@@ -245,7 +247,7 @@ func main() {
 
 		srv := &http.Server{
 			Handler: handler,
-			Addr:    fmt.Sprintf("%s:9999", hostGrpcAlu),
+			Addr:    fmt.Sprintf("%s:%d", hostGrpcAlu, portMetricAlu),
 			// Good practice to set timeouts to avoid Slowloris attacks.
 			WriteTimeout: time.Second * 15,
 			ReadTimeout:  time.Second * 15,
@@ -267,4 +269,6 @@ func main() {
 	}()
 
 	level.Error(logger).Log("exit", <-errs)
+	//* Notifica o programa quando for encerrado *//
+
 }
