@@ -44,7 +44,7 @@ func ProvaStatusHandler(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusUnprocessableEntity)
 		json.NewEncoder(w).Encode(utils.ResponseHTTP{
 			Status: false,
-			Erro:   "Não foi possível se conectar com o serviço de alunos, serviço indisponível.",
+			Erro:   "Não foi possível se conectar com o serviço de provas, serviço indisponível.",
 		})
 		return
 	}
@@ -55,7 +55,7 @@ func ProvaStatusHandler(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusUnprocessableEntity)
 		json.NewEncoder(w).Encode(utils.ResponseHTTP{
 			Status: false,
-			Erro:   "Não foi possível se conectar com o serviço de alunos, serviço indisponível.",
+			Erro:   "Não foi possível se conectar com o serviço de provas, serviço indisponível.",
 		})
 		return
 	}

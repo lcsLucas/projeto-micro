@@ -75,6 +75,8 @@ func inicializeDB(ctx context.Context) error {
 		return err
 	}
 
+	fmt.Println("eae entrou aqui!?")
+
 	err = migrations.ExecCreateDatabaseProva(ctx, configDB.DBName, newConn)
 	if err != nil {
 		return err

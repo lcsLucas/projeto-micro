@@ -13,6 +13,7 @@ services:
     image: mongo:4.4.3
     container_name: micro-mongo
     restart: always
+    mem_limit: 2048m
     command: [--auth]
     networks: 
       - net-micro
@@ -28,6 +29,7 @@ services:
     image: postgres:9.6.20-alpine
     container_name: micro-postgres
     restart: always
+    mem_limit: 2048m
     networks: 
       - net-micro
     environment: 
