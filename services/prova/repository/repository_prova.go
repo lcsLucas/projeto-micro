@@ -10,7 +10,7 @@ import (
 	"gorm.io/gorm"
 )
 
-const tableName = "provas"
+//const tableName = "provas"
 
 type repository struct {
 	db       *gorm.DB
@@ -45,32 +45,34 @@ func (r *repository) GetProvaAluno(ctx context.Context, idProva uint64, raAluno 
 	var pa model.ProvaAluno
 	var pe []model.ProvaExercicios
 
-	err = r.db.Debug().Model(model.Prova{}).Where("id = ?", idProva).Take(&p).Error
+	tx := r.db.WithContext(ctx)
+
+	err = tx.Debug().Model(model.Prova{}).Where("id = ?", idProva).Take(&p).Error
 	if err != nil {
 
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return model.Prova{}, errors.New("Nenhuma Prova encontrada")
+			return model.Prova{}, errors.New("nenhuma prova encontrada")
 		}
 
 		return model.Prova{}, err
 	}
 
-	err = r.db.Debug().Model(model.ProvaAluno{}).Where("prova_id = ? AND aluno_ra = ?", p.ID, raAluno).Take(&pa).Error
+	err = tx.Debug().Model(model.ProvaAluno{}).Where("prova_id = ? AND aluno_ra = ?", p.ID, raAluno).Take(&pa).Error
 	if err != nil {
 
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return model.Prova{}, errors.New("Prova não relacionada para esse aluno")
+			return model.Prova{}, errors.New("prova não relacionada para esse aluno")
 		}
 
 		return model.Prova{}, err
 
 	}
 
-	err = r.db.Debug().Model(model.ProvaExercicios{}).Where("prova_aluno_id = ?", pa.ID).Find(&pe).Error
+	err = tx.Debug().Model(model.ProvaExercicios{}).Where("prova_aluno_id = ?", pa.ID).Find(&pe).Error
 	if err != nil {
 
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return model.Prova{}, errors.New("Nenhum exercício relacionado com essa Prova")
+			return model.Prova{}, errors.New("nenhum exercício relacionado com essa Prova")
 		}
 
 		return model.Prova{}, err
@@ -87,7 +89,9 @@ func (r *repository) GetAll(ctx context.Context, page uint32) ([]model.Prova, er
 
 	provas := []model.Prova{}
 
-	err = r.db.Debug().Model(&model.Prova{}).Find(&provas).Error
+	tx := r.db.WithContext(ctx)
+
+	err = tx.Debug().Model(&model.Prova{}).Find(&provas).Error
 	if err != nil {
 		return []model.Prova{}, err
 	}
