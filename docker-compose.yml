@@ -120,7 +120,7 @@ services:
     networks: 
       - net-micro
   prometheus:
-    image: prom/prometheus
+    image: prom/prometheus:v2.28.1
     container_name: micro-prometheus
     restart: always
     ports:

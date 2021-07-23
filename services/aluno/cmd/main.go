@@ -14,6 +14,7 @@ import (
 
 	"github.com/gorilla/mux"
 	"github.com/lcslucas/projeto-micro/services/aluno/instrumentation"
+	"github.com/lcslucas/projeto-micro/services/aluno/logging"
 	proto "github.com/lcslucas/projeto-micro/services/aluno/proto_aluno"
 	"github.com/lcslucas/projeto-micro/services/aluno/repository"
 	"github.com/rs/cors"
@@ -54,8 +55,8 @@ func inicializeLogger() {
 	logger = log.NewSyncLogger(logger)
 	logger = log.With(logger,
 		"service", "aluno",
-		"hour", log.DefaultTimestampUTC,
 		"caller", log.DefaultCaller,
+		"hour", log.DefaultTimestampUTC,
 	)
 }
 
@@ -192,8 +193,9 @@ func main() {
 	//* Definindo o serviço Aluno *//
 	var service aluno.Service
 	{
-		repository := repository.NewRepository(conn, logger, configDB)
-		service = aluno.NewService(repository, logger)
+		repository := repository.NewRepository(conn, configDB)
+		service = aluno.NewService(repository)
+		service = logging.NewLogging(logger, service)
 		service = instrumentation.NewInstrumentation(countsService, latencysService, service)
 	}
 	//* Definindo o serviço Aluno *//

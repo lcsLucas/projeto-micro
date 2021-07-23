@@ -1,0 +1,4 @@
+estou na branch features
+    - comecei a ver ce colocar o log como middleware igual as metricas
+        - comecei no serviço Aluno
+            - consultar o go kit, mas fazer igual o metricas, por causa do new
