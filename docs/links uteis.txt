@@ -16,3 +16,8 @@
 
 # Como utilizar o JWT sem expirar o token
     - https://hasura.io/blog/best-practices-of-using-jwt-with-graphql/#logout_token_invalidation    
+	
+# Prometheus e Grafana
+	- https://medium.com/spaceuptech/how-to-setup-monitoring-using-prometheus-and-grafana-9ba7bf8cbda9
+	- https://www.youtube.com/watch?v=jUhacrwEwDk
+	- https://github.com/YourTechBud/practical-guide/tree/master/monitoring-microservices-docker

@@ -30,6 +30,7 @@ import (
 	"github.com/lcslucas/projeto-micro/services/prova"
 	"github.com/lcslucas/projeto-micro/services/prova/endpoints"
 	"github.com/lcslucas/projeto-micro/services/prova/instrumentation"
+	"github.com/lcslucas/projeto-micro/services/prova/logging"
 	"github.com/lcslucas/projeto-micro/services/prova/migrations"
 	proto "github.com/lcslucas/projeto-micro/services/prova/proto_prova"
 	"github.com/lcslucas/projeto-micro/services/prova/repository"
@@ -51,8 +52,8 @@ func inicializeLogger() {
 	logger = log.NewSyncLogger(logger)
 	logger = log.With(logger,
 		"service", "prova",
-		"hour", log.DefaultTimestampUTC,
 		"caller", log.DefaultCaller,
+		"hour", log.DefaultTimestampUTC,
 	)
 }
 
@@ -83,8 +84,6 @@ func inicializeDB(ctx context.Context) error {
 	if err != nil {
 		return err
 	}
-
-	fmt.Println("eae entrou aqui!?")
 
 	err = migrations.ExecCreateDatabaseProva(ctx, configDB.DBName, newConn)
 	if err != nil {
@@ -214,8 +213,9 @@ func main() {
 	//* Definindo o serviço Prova *//
 	var service prova.Service
 	{
-		repository := repository.NewRepository(conn, logger, configDB)
+		repository := repository.NewRepository(conn, configDB)
 		service = prova.NewService(repository, logger)
+		service = logging.NewLogging(logger, service)
 		service = instrumentation.NewInstrumentation(countsService, latencysService, service)
 	}
 

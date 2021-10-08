@@ -27,6 +27,7 @@ import (
 	"github.com/lcslucas/projeto-micro/services/exercicio"
 	"github.com/lcslucas/projeto-micro/services/exercicio/endpoints"
 	"github.com/lcslucas/projeto-micro/services/exercicio/instrumentation"
+	"github.com/lcslucas/projeto-micro/services/exercicio/logging"
 	"github.com/lcslucas/projeto-micro/services/exercicio/migrations"
 	proto "github.com/lcslucas/projeto-micro/services/exercicio/proto_exercicio"
 	"github.com/lcslucas/projeto-micro/services/exercicio/repository"
@@ -51,8 +52,8 @@ func inicializeLogger() {
 	logger = log.NewSyncLogger(logger)
 	logger = log.With(logger,
 		"service", "exercicio",
-		"hour", log.DefaultTimestampUTC,
 		"caller", log.DefaultCaller,
+		"hour", log.DefaultTimestampUTC,
 	)
 }
 
@@ -190,8 +191,9 @@ func main() {
 	//* Definindo o serviço Exercício *//
 	var service exercicio.Service
 	{
-		repository := repository.NewRepository(conn, logger, configDB)
-		service = exercicio.NewService(repository, logger)
+		repository := repository.NewRepository(conn, configDB)
+		service = exercicio.NewService(repository)
+		service = logging.NewLogging(logger, service)
 		service = instrumentation.NewInstrumentation(countsService, latencysService, service)
 	}
 	//* Definindo o serviço Exercício *//

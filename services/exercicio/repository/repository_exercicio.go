@@ -3,8 +3,6 @@ package repository
 import (
 	"context"
 
-	"github.com/go-kit/kit/log"
-
 	"github.com/lcslucas/projeto-micro/config"
 	"github.com/lcslucas/projeto-micro/services/exercicio/model"
 	"go.mongodb.org/mongo-driver/bson"
@@ -15,15 +13,13 @@ const tableName = "exercicios"
 
 type repository struct {
 	clientMongo *mongo.Client
-	logger      log.Logger
 	configDB    config.ConfigDB
 }
 
 //NewRepository cria um novo repositório para o serviço
-func NewRepository(client *mongo.Client, logger log.Logger, configDB config.ConfigDB) model.Repository {
+func NewRepository(client *mongo.Client, configDB config.ConfigDB) model.Repository {
 	return &repository{
 		clientMongo: client,
-		logger:      log.With(logger, "repository", "exercicio", "sql"),
 		configDB:    configDB,
 	}
 }

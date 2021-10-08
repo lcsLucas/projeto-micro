@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 
-	"github.com/go-kit/kit/log"
 	"github.com/lcslucas/projeto-micro/config"
 	"github.com/lcslucas/projeto-micro/services/prova/model"
 	"gorm.io/gorm"
@@ -14,15 +13,13 @@ import (
 
 type repository struct {
 	db       *gorm.DB
-	logger   log.Logger
 	configDB config.ConfigDB
 }
 
 //NewRepository cria um novo repositório para o serviço
-func NewRepository(db *gorm.DB, logger log.Logger, configDB config.ConfigDB) model.Repository {
+func NewRepository(db *gorm.DB, configDB config.ConfigDB) model.Repository {
 	return &repository{
 		db:       db,
-		logger:   log.With(logger, "repository", "prova", "sql"),
 		configDB: configDB,
 	}
 }

@@ -5,13 +5,10 @@ import (
 	"errors"
 
 	"github.com/lcslucas/projeto-micro/services/aluno/model"
-
-	"github.com/go-kit/kit/log"
 )
 
 type alunoService struct {
 	repository model.Repository
-	logger     log.Logger
 }
 
 /*NewService cria um novo serviço de aluno */
