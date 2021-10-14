@@ -48,7 +48,14 @@ var portGrpcExe int
 var portMetricExe int
 
 func inicializeLogger() {
-	logger = log.NewLogfmtLogger(os.Stderr)
+
+	file, err := os.OpenFile("/bin/projeto-service/temp/log_exercicio.log", os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0666)
+
+	if err != nil {
+		panic(err)
+	}
+
+	logger = log.NewLogfmtLogger(file) //os.Stderr
 	logger = log.NewSyncLogger(logger)
 	logger = log.With(logger,
 		"service", "exercicio",

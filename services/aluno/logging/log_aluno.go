@@ -31,7 +31,7 @@ func (lm loggingMidleware) Create(ctx context.Context, alu model.Aluno) (output 
 			//"output", output,
 			"error", err,
 			"ended", time.Now(),
-			"duration", fmt.Sprintf("%vs", time.Since(begin).Seconds()),
+			"duration", fmt.Sprintf("%vms", time.Since(begin).Milliseconds()),
 		)
 	}(time.Now())
 
@@ -47,7 +47,7 @@ func (lm loggingMidleware) Alter(ctx context.Context, alu model.Aluno) (output b
 			//"output", output,
 			"error", err,
 			"ended", time.Now(),
-			"duration", fmt.Sprintf("%vs", time.Since(begin).Seconds()),
+			"duration", fmt.Sprintf("%vms", time.Since(begin).Milliseconds()),
 		)
 	}(time.Now())
 
@@ -65,7 +65,7 @@ func (lm loggingMidleware) Get(ctx context.Context, ra string) (output model.Alu
 			//"output", string(str_output),
 			"error", err,
 			"ended", time.Now(),
-			"duration", fmt.Sprintf("%vs", time.Since(begin).Seconds()),
+			"duration", fmt.Sprintf("%vms", time.Since(begin).Milliseconds()),
 		)
 	}(time.Now())
 
@@ -83,7 +83,7 @@ func (lm loggingMidleware) GetAll(ctx context.Context, page uint32) (output []mo
 			//"output", string(str_output),
 			"error", err,
 			"ended", time.Now(),
-			"duration", fmt.Sprintf("%vs", time.Since(begin).Seconds()),
+			"duration", fmt.Sprintf("%vms", time.Since(begin).Milliseconds()),
 		)
 	}(time.Now())
 
@@ -99,7 +99,7 @@ func (lm loggingMidleware) Delete(ctx context.Context, ra string) (output bool, 
 			//"output", output,
 			"error", err,
 			"ended", time.Now(),
-			"duration", fmt.Sprintf("%vs", time.Since(begin).Seconds()),
+			"duration", fmt.Sprintf("%vms", time.Since(begin).Milliseconds()),
 		)
 	}(time.Now())
 
@@ -114,7 +114,7 @@ func (lm loggingMidleware) StatusService(ctx context.Context) (output bool, err 
 			//"output", output,
 			"error", err,
 			"ended", time.Now(),
-			"duration", fmt.Sprintf("%vs", time.Since(begin).Seconds()),
+			"duration", fmt.Sprintf("%vms", time.Since(begin).Milliseconds()),
 		)
 	}(time.Now())
 

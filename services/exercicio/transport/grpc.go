@@ -24,32 +24,32 @@ func NewGrpcServer(ep endpoints.Set) proto.ServiceExercicioServer {
 		create: grpctransport.NewServer(
 			ep.CreateEndpoint,
 			decodeGrpcCreateAlterRequest,
-			decodeGrpcCreateAlterResponse,
+			encodeGrpcCreateAlterResponse,
 		),
 		alter: grpctransport.NewServer(
 			ep.AlterEndpoint,
 			decodeGrpcCreateAlterRequest,
-			decodeGrpcCreateAlterResponse,
+			encodeGrpcCreateAlterResponse,
 		),
 		get: grpctransport.NewServer(
 			ep.GetEndpoint,
 			decodeGrpcGetRequest,
-			decodeGrpcGetResponse,
+			encodeGrpcGetResponse,
 		),
 		getSomes: grpctransport.NewServer(
 			ep.GetSomesEndpoint,
 			decodeGrpcGetSomesRequest,
-			decodeGrpcGetSomesResponse,
+			encodeGrpcGetSomesResponse,
 		),
 		delete: grpctransport.NewServer(
 			ep.DeleteEndpoint,
 			decodeGrpcDeleteRequest,
-			decodeGrpcDeleteResponse,
+			encodeGrpcDeleteResponse,
 		),
 		statusService: grpctransport.NewServer(
 			ep.StatusServiceEndpoint,
 			decodeGrpcStatusServiceRequest,
-			decodeGrpcStatusServiceResponse,
+			encodeGrpcStatusServiceResponse,
 		),
 	}
 }
@@ -152,7 +152,7 @@ func decodeGrpcStatusServiceRequest(_ context.Context, grpcReq interface{}) (int
 
 /* Responses */
 
-func decodeGrpcCreateAlterResponse(_ context.Context, grpcRes interface{}) (interface{}, error) {
+func encodeGrpcCreateAlterResponse(_ context.Context, grpcRes interface{}) (interface{}, error) {
 	res := grpcRes.(endpoints.CreateAlterResponse)
 	return &proto.CreateAlterResponse{
 		Status: res.Status,
@@ -160,7 +160,7 @@ func decodeGrpcCreateAlterResponse(_ context.Context, grpcRes interface{}) (inte
 	}, nil
 }
 
-func decodeGrpcGetResponse(_ context.Context, grpcRes interface{}) (interface{}, error) {
+func encodeGrpcGetResponse(_ context.Context, grpcRes interface{}) (interface{}, error) {
 	res := grpcRes.(endpoints.GetResponse)
 	return &proto.GetResponse{
 		Exercicio: &proto.Exercicio{
@@ -175,7 +175,7 @@ func decodeGrpcGetResponse(_ context.Context, grpcRes interface{}) (interface{},
 	}, nil
 }
 
-func decodeGrpcGetSomesResponse(_ context.Context, grpcRes interface{}) (interface{}, error) {
+func encodeGrpcGetSomesResponse(_ context.Context, grpcRes interface{}) (interface{}, error) {
 	res := grpcRes.(endpoints.GetSomesResponse)
 	var exes []*proto.Exercicio
 	for _, e := range res.Exercicios {
@@ -195,7 +195,7 @@ func decodeGrpcGetSomesResponse(_ context.Context, grpcRes interface{}) (interfa
 	}, nil
 }
 
-func decodeGrpcDeleteResponse(_ context.Context, grpcRes interface{}) (interface{}, error) {
+func encodeGrpcDeleteResponse(_ context.Context, grpcRes interface{}) (interface{}, error) {
 	res := grpcRes.(endpoints.DeleteResponse)
 	return &proto.DeleteResponse{
 		Status: res.Status,
@@ -203,7 +203,7 @@ func decodeGrpcDeleteResponse(_ context.Context, grpcRes interface{}) (interface
 	}, nil
 }
 
-func decodeGrpcStatusServiceResponse(_ context.Context, grpcRes interface{}) (interface{}, error) {
+func encodeGrpcStatusServiceResponse(_ context.Context, grpcRes interface{}) (interface{}, error) {
 	res := grpcRes.(endpoints.StatusServiceResponse)
 	return &proto.StatusServiceResponse{
 		Status: res.Status,

@@ -32,7 +32,7 @@ func (lm loggingMidleware) Create(ctx context.Context, exe model.Exercicio) (out
 			//"output", output,
 			"error", err,
 			"ended", time.Now(),
-			"duration", fmt.Sprintf("%vs", time.Since(begin).Seconds()),
+			"duration", fmt.Sprintf("%vms", time.Since(begin).Milliseconds()),
 		)
 	}(time.Now())
 
@@ -48,7 +48,7 @@ func (lm loggingMidleware) Alter(ctx context.Context, exe model.Exercicio) (outp
 			//"output", output,
 			"error", err,
 			"ended", time.Now(),
-			"duration", fmt.Sprintf("%vs", time.Since(begin).Seconds()),
+			"duration", fmt.Sprintf("%vms", time.Since(begin).Milliseconds()),
 		)
 	}(time.Now())
 
@@ -66,7 +66,7 @@ func (lm loggingMidleware) Get(ctx context.Context, id uint64) (output model.Exe
 			//"output", string(str_output),
 			"error", err,
 			"ended", time.Now(),
-			"duration", fmt.Sprintf("%vs", time.Since(begin).Seconds()),
+			"duration", fmt.Sprintf("%vms", time.Since(begin).Milliseconds()),
 		)
 	}(time.Now())
 
@@ -84,7 +84,7 @@ func (lm loggingMidleware) GetSomes(ctx context.Context, ids []uint64) (output [
 			//"output", string(str_output),
 			"error", err,
 			"ended", time.Now(),
-			"duration", fmt.Sprintf("%vs", time.Since(begin).Seconds()),
+			"duration", fmt.Sprintf("%vms", time.Since(begin).Milliseconds()),
 		)
 	}(time.Now())
 
@@ -100,7 +100,7 @@ func (lm loggingMidleware) Delete(ctx context.Context, id uint64) (output bool, 
 			//"output", output,
 			"error", err,
 			"ended", time.Now(),
-			"duration", fmt.Sprintf("%vs", time.Since(begin).Seconds()),
+			"duration", fmt.Sprintf("%vms", time.Since(begin).Milliseconds()),
 		)
 	}(time.Now())
 
@@ -115,7 +115,7 @@ func (lm loggingMidleware) StatusService(ctx context.Context) (output bool, err 
 			//"output", output,
 			"error", err,
 			"ended", time.Now(),
-			"duration", fmt.Sprintf("%vs", time.Since(begin).Seconds()),
+			"duration", fmt.Sprintf("%vms", time.Since(begin).Milliseconds()),
 		)
 	}(time.Now())
 

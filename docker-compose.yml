@@ -47,6 +47,8 @@ services:
       dockerfile: "./services/aluno/docker/Dockerfile.alunos"
     restart: always
     working_dir: /go/src/github.com/lcslucas/projeto-service/services/aluno/cmd
+    volumes:
+      - ./data/logs:/bin/projeto-service/temp
     depends_on:
       - mongo
       - postgres
@@ -67,6 +69,8 @@ services:
       dockerfile: "./services/exercicio/docker/Dockerfile.exercicios"
     restart: always
     working_dir: /go/src/github.com/lcslucas/projeto-service/services/exercicio/cmd
+    volumes:
+      - ./data/logs:/bin/projeto-service/temp
     depends_on: 
       - mongo
       - postgres
@@ -87,6 +91,8 @@ services:
       dockerfile: "./services/prova/docker/Dockerfile.provas"
     restart: always
     working_dir: /go/src/github.com/lcslucas/projeto-service/services/prova/cmd
+    volumes:
+      - ./data/logs:/bin/projeto-service/temp
     depends_on: 
       - mongo
       - postgres
@@ -107,6 +113,8 @@ services:
     container_name: micro-api
     restart: always
     working_dir: /bin/projeto-service
+    volumes:
+      - ./data/logs:/bin/projeto-service/temp
     depends_on: 
       - alunos
       - exercicios

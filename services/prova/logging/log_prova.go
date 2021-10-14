@@ -31,7 +31,7 @@ func (lm loggingMidleware) Create(ctx context.Context, prova model.Prova) (outpu
 			//"output", output,
 			"error", err,
 			"ended", time.Now(),
-			"duration", fmt.Sprintf("%vs", time.Since(begin).Seconds()),
+			"duration", fmt.Sprintf("%vms", time.Since(begin).Milliseconds()),
 		)
 	}(time.Now())
 
@@ -47,7 +47,7 @@ func (lm loggingMidleware) Alter(ctx context.Context, prova model.Prova) (output
 			//"output", output,
 			"error", err,
 			"ended", time.Now(),
-			"duration", fmt.Sprintf("%vs", time.Since(begin).Seconds()),
+			"duration", fmt.Sprintf("%vms", time.Since(begin).Milliseconds()),
 		)
 	}(time.Now())
 
@@ -65,7 +65,7 @@ func (lm loggingMidleware) Get(ctx context.Context, id uint64) (output model.Pro
 			//"output", string(str_output),
 			"error", err,
 			"ended", time.Now(),
-			"duration", fmt.Sprintf("%vs", time.Since(begin).Seconds()),
+			"duration", fmt.Sprintf("%vms", time.Since(begin).Milliseconds()),
 		)
 	}(time.Now())
 
@@ -77,13 +77,13 @@ func (lm loggingMidleware) GetProvaAluno(ctx context.Context, idProva uint64, ra
 	defer func(begin time.Time) {
 		//str_output, _ := json.Marshal(output)
 
-		logger := log.With(lm.logger, "method", "GetAll")
+		logger := log.With(lm.logger, "method", "GetProvaAluno")
 		level.Info(logger).Log(
 			"parameter", fmt.Sprintf("%v, %v", idProva, raAluno),
 			//"output", string(str_output),
 			"error", err,
 			"ended", time.Now(),
-			"duration", fmt.Sprintf("%vs", time.Since(begin).Seconds()),
+			"duration", fmt.Sprintf("%vms", time.Since(begin).Milliseconds()),
 		)
 	}(time.Now())
 
@@ -101,7 +101,7 @@ func (lm loggingMidleware) GetAll(ctx context.Context, page uint32) (output []mo
 			//"output", string(str_output),
 			"error", err,
 			"ended", time.Now(),
-			"duration", fmt.Sprintf("%vs", time.Since(begin).Seconds()),
+			"duration", fmt.Sprintf("%vms", time.Since(begin).Milliseconds()),
 		)
 	}(time.Now())
 
@@ -117,7 +117,7 @@ func (lm loggingMidleware) Delete(ctx context.Context, id uint64) (output bool, 
 			//"output", output,
 			"error", err,
 			"ended", time.Now(),
-			"duration", fmt.Sprintf("%vs", time.Since(begin).Seconds()),
+			"duration", fmt.Sprintf("%vms", time.Since(begin).Milliseconds()),
 		)
 	}(time.Now())
 
@@ -132,7 +132,7 @@ func (lm loggingMidleware) StatusService(ctx context.Context) (output bool, err 
 			//"output", output,
 			"error", err,
 			"ended", time.Now(),
-			"duration", fmt.Sprintf("%vs", time.Since(begin).Seconds()),
+			"duration", fmt.Sprintf("%vms", time.Since(begin).Milliseconds()),
 		)
 	}(time.Now())
 

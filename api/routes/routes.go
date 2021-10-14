@@ -14,7 +14,14 @@ import (
 var Logger log.Logger
 
 func InicializeLogger() {
-	Logger = log.NewLogfmtLogger(os.Stderr)
+
+	file, err := os.OpenFile("/bin/projeto-service/temp/log_api.log", os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0666)
+
+	if err != nil {
+		panic(err)
+	}
+
+	Logger = log.NewLogfmtLogger(file) //os.Stderr
 	Logger = log.NewSyncLogger(Logger)
 	Logger = log.With(Logger,
 		"service", "api",
