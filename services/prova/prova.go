@@ -37,12 +37,12 @@ func NewService(rep model.Repository, logger log.Logger) Service {
 	}
 }
 
-func (p provaService) Create(ctx context.Context, pro model.Prova) (bool, error) {
-	return false, errors.New("not implemented")
+func (p provaService) Create(ctx context.Context, pro model.Prova) (err error) {
+	return errors.New("not implemented")
 }
 
-func (p provaService) Alter(ctx context.Context, pro model.Prova) (bool, error) {
-	return false, errors.New("not implemented")
+func (p provaService) Alter(ctx context.Context, pro model.Prova) (err error) {
+	return errors.New("not implemented")
 }
 
 func (p provaService) Get(ctx context.Context, id uint64) (model.Prova, error) {
@@ -214,10 +214,10 @@ func (p provaService) GetAll(ctx context.Context, page uint32) ([]model.Prova, e
 	return []model.Prova{}, errors.New("not implemented")
 }
 
-func (p provaService) Delete(ctx context.Context, id uint64) (bool, error) {
-	return false, errors.New("not implemented")
+func (p provaService) Delete(ctx context.Context, id uint64) (err error) {
+	return errors.New("not implemented")
 }
 
-func (p provaService) StatusService(ctx context.Context) (bool, error) {
-	return true, nil
+func (p provaService) StatusService(ctx context.Context) (err error) {
+	return nil
 }

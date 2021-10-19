@@ -16,8 +16,10 @@ import (
 	"github.com/lcslucas/projeto-micro/services/aluno/instrumentation"
 	"github.com/lcslucas/projeto-micro/services/aluno/logging"
 	proto "github.com/lcslucas/projeto-micro/services/aluno/proto_aluno"
+	"github.com/lcslucas/projeto-micro/services/aluno/proxying"
 	"github.com/lcslucas/projeto-micro/services/aluno/repository"
 	"github.com/rs/cors"
+	"github.com/sony/gobreaker"
 
 	"github.com/lcslucas/projeto-micro/config"
 	"github.com/lcslucas/projeto-micro/services/aluno"
@@ -45,6 +47,8 @@ var conn *mongo.Client
 var configDB config.ConfigDB
 
 var logger log.Logger
+
+var cb *gobreaker.CircuitBreaker
 
 var hostGrpcAlu string
 var portGrpcAlu int
@@ -105,6 +109,17 @@ func inicializeDB(ctx context.Context) error {
 
 	conn = newConn
 	return migrations.ExecMigrationAlunos(ctx, configDB.DBName, conn)
+}
+
+func inicializeCircuitBreaker() {
+	var st gobreaker.Settings
+	st.Name = "Service Aluno"
+	st.ReadyToTrip = func(counts gobreaker.Counts) bool {
+		failureRatio := float64(counts.TotalFailures) / float64(counts.Requests)
+		return counts.Requests >= 3 && failureRatio >= 0.6
+	}
+
+	cb = gobreaker.NewCircuitBreaker(st)
 }
 
 func inicializeMetrics() (cMethods *prometheus.CounterVec, lMethods instrumentation.LatencyMethods) {
@@ -205,19 +220,28 @@ func main() {
 	countsService, latencysService := inicializeMetrics()
 	//* Inicializando métricas do serviço Aluno *//
 
+	//* Inicializando circuit breaker do serviço Aluno *//
+	inicializeCircuitBreaker()
+	//* Inicializando circuit breaker do serviço Aluno *//
+
 	//* Definindo o serviço Aluno *//
 	var service aluno.Service
 	{
 		repository := repository.NewRepository(conn, configDB)
 		service = aluno.NewService(repository)
 		service = logging.NewLogging(logger, service)
+		service = proxying.NewProxying(cb, service)
 		service = instrumentation.NewInstrumentation(countsService, latencysService, service)
 	}
 	//* Definindo o serviço Aluno *//
 
 	//* Inicializando Conexão gRPC do serviço Aluno *//
+	var eps endpoints.Set
+	{
+		eps = endpoints.NewEndpointSet(service)
+	}
+
 	var (
-		eps        = endpoints.NewEndpointSet(service)
 		grpcServer = transport.NewGrpcServer(eps)
 	)
 

@@ -19,6 +19,7 @@ import (
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/rs/cors"
+	"github.com/sony/gobreaker"
 
 	"google.golang.org/grpc"
 
@@ -33,6 +34,7 @@ import (
 	"github.com/lcslucas/projeto-micro/services/prova/logging"
 	"github.com/lcslucas/projeto-micro/services/prova/migrations"
 	proto "github.com/lcslucas/projeto-micro/services/prova/proto_prova"
+	"github.com/lcslucas/projeto-micro/services/prova/proxying"
 	"github.com/lcslucas/projeto-micro/services/prova/repository"
 	"github.com/lcslucas/projeto-micro/services/prova/transport"
 	"gorm.io/gorm"
@@ -42,6 +44,8 @@ var conn *gorm.DB
 var configDB config.ConfigDB
 
 var logger log.Logger
+
+var cb *gobreaker.CircuitBreaker
 
 var hostGrpcProva string
 var portGrpcProva int
@@ -105,6 +109,17 @@ func inicializeDB(ctx context.Context) error {
 	}
 
 	return migrations.ExecMigrationProva(ctx, configDB.DBName, conn)
+}
+
+func inicializeCircuitBreaker() {
+	var st gobreaker.Settings
+	st.Name = "Service Aluno"
+	st.ReadyToTrip = func(counts gobreaker.Counts) bool {
+		failureRatio := float64(counts.TotalFailures) / float64(counts.Requests)
+		return counts.Requests >= 3 && failureRatio >= 0.6
+	}
+
+	cb = gobreaker.NewCircuitBreaker(st)
 }
 
 func inicializeMetrics() (cMethods *prometheus.CounterVec, lMethods instrumentation.LatencyMethods) {
@@ -217,12 +232,17 @@ func main() {
 	countsService, latencysService := inicializeMetrics()
 	//* Inicializando métricas do serviço Prova *//
 
+	//* Inicializando circuit breaker do serviço Prova *//
+	inicializeCircuitBreaker()
+	//* Inicializando circuit breaker do serviço Prova *//
+
 	//* Definindo o serviço Prova *//
 	var service prova.Service
 	{
 		repository := repository.NewRepository(conn, configDB)
 		service = prova.NewService(repository, logger)
 		service = logging.NewLogging(logger, service)
+		service = proxying.NewProxying(cb, service)
 		service = instrumentation.NewInstrumentation(countsService, latencysService, service)
 	}
 

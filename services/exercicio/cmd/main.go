@@ -18,6 +18,7 @@ import (
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/rs/cors"
+	"github.com/sony/gobreaker"
 	"go.mongodb.org/mongo-driver/mongo"
 
 	"google.golang.org/grpc"
@@ -30,6 +31,7 @@ import (
 	"github.com/lcslucas/projeto-micro/services/exercicio/logging"
 	"github.com/lcslucas/projeto-micro/services/exercicio/migrations"
 	proto "github.com/lcslucas/projeto-micro/services/exercicio/proto_exercicio"
+	"github.com/lcslucas/projeto-micro/services/exercicio/proxying"
 	"github.com/lcslucas/projeto-micro/services/exercicio/repository"
 	"github.com/lcslucas/projeto-micro/services/exercicio/transport"
 
@@ -42,6 +44,8 @@ var conn *mongo.Client
 var configDB config.ConfigDB
 
 var logger log.Logger
+
+var cb *gobreaker.CircuitBreaker
 
 var hostGrpcExe string
 var portGrpcExe int
@@ -94,6 +98,17 @@ func inicializeDB(ctx context.Context) error {
 
 	conn = newConn
 	return migrations.ExecMigrationExercicios(ctx, configDB.DBName, conn)
+}
+
+func inicializeCircuitBreaker() {
+	var st gobreaker.Settings
+	st.Name = "Service Aluno"
+	st.ReadyToTrip = func(counts gobreaker.Counts) bool {
+		failureRatio := float64(counts.TotalFailures) / float64(counts.Requests)
+		return counts.Requests >= 3 && failureRatio >= 0.6
+	}
+
+	cb = gobreaker.NewCircuitBreaker(st)
 }
 
 func inicializeMetrics() (cMethods *prometheus.CounterVec, lMethods instrumentation.LatencyMethods) {
@@ -191,6 +206,10 @@ func main() {
 	defer conn.Disconnect(ctx)
 	//* Inicializando Conexão com o banco de dados *//
 
+	//* Inicializando circuit breaker do serviço Aluno *//
+	inicializeCircuitBreaker()
+	//* Inicializando circuit breaker do serviço Aluno *//
+
 	//* Inicializando métricas do serviço Exercicio *//
 	countsService, latencysService := inicializeMetrics()
 	//* Inicializando métricas do serviço Exercicio *//
@@ -201,6 +220,7 @@ func main() {
 		repository := repository.NewRepository(conn, configDB)
 		service = exercicio.NewService(repository)
 		service = logging.NewLogging(logger, service)
+		service = proxying.NewProxying(cb, service)
 		service = instrumentation.NewInstrumentation(countsService, latencysService, service)
 	}
 	//* Definindo o serviço Exercício *//

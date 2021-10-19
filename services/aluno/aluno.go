@@ -18,12 +18,12 @@ func NewService(rep model.Repository) Service {
 	}
 }
 
-func (a *alunoService) Create(ctx context.Context, alu model.Aluno) (bool, error) {
-	return false, errors.New("not implemented")
+func (a *alunoService) Create(ctx context.Context, alu model.Aluno) error {
+	return errors.New("not implemented")
 }
 
-func (a *alunoService) Alter(ctx context.Context, alu model.Aluno) (bool, error) {
-	return false, errors.New("not implemented")
+func (a *alunoService) Alter(ctx context.Context, alu model.Aluno) error {
+	return errors.New("not implemented")
 }
 
 func (a *alunoService) Get(ctx context.Context, ra string) (model.Aluno, error) {
@@ -39,10 +39,10 @@ func (a *alunoService) GetAll(ctx context.Context, page uint32) ([]model.Aluno, 
 	return []model.Aluno{}, nil
 }
 
-func (a *alunoService) Delete(ctx context.Context, ra string) (bool, error) {
-	return false, errors.New("not implemented")
+func (a *alunoService) Delete(ctx context.Context, ra string) error {
+	return errors.New("not implemented")
 }
 
-func (a *alunoService) StatusService(ctx context.Context) (bool, error) {
-	return true, nil
+func (a *alunoService) StatusService(ctx context.Context) error {
+	return nil
 }

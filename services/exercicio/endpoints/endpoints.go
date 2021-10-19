@@ -31,7 +31,7 @@ func NewEndpointSet(s exercicio.Service) Set {
 func MakeCreateEndpoint(s exercicio.Service) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
 		req := request.(CreateAlterRequest)
-		_, err := s.Create(ctx, req.Exercicio)
+		err := s.Create(ctx, req.Exercicio)
 		if err != nil {
 			return CreateAlterResponse{
 				Status: false,
@@ -49,7 +49,7 @@ func MakeCreateEndpoint(s exercicio.Service) endpoint.Endpoint {
 func MakeAlterEndpoint(s exercicio.Service) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
 		req := request.(CreateAlterRequest)
-		_, err := s.Alter(ctx, req.Exercicio)
+		err := s.Alter(ctx, req.Exercicio)
 		if err != nil {
 			return CreateAlterResponse{
 				Status: false,
@@ -107,7 +107,7 @@ func MakeGetSomesEndpoint(s exercicio.Service) endpoint.Endpoint {
 func MakeDeleteEndpoint(s exercicio.Service) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
 		req := request.(DeleteRequest)
-		_, err := s.Delete(ctx, req.ID)
+		err := s.Delete(ctx, req.ID)
 		if err != nil {
 			return DeleteResponse{
 				Status: false,
@@ -124,7 +124,7 @@ func MakeDeleteEndpoint(s exercicio.Service) endpoint.Endpoint {
 
 func MakeStatusServiceEndpoint(s exercicio.Service) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
-		_, err := s.StatusService(ctx)
+		err := s.StatusService(ctx)
 		if err != nil {
 			return StatusServiceResponse{
 				Status: false,

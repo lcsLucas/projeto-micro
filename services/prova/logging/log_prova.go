@@ -23,7 +23,7 @@ func NewLogging(logger log.Logger, nService prova.Service) prova.Service {
 	}
 }
 
-func (lm loggingMidleware) Create(ctx context.Context, prova model.Prova) (output bool, err error) {
+func (lm loggingMidleware) Create(ctx context.Context, prova model.Prova) (err error) {
 	defer func(begin time.Time) {
 		logger := log.With(lm.logger, "method", "Create")
 		level.Info(logger).Log(
@@ -35,11 +35,11 @@ func (lm loggingMidleware) Create(ctx context.Context, prova model.Prova) (outpu
 		)
 	}(time.Now())
 
-	output, err = lm.next.Create(ctx, prova)
+	err = lm.next.Create(ctx, prova)
 	return
 }
 
-func (lm loggingMidleware) Alter(ctx context.Context, prova model.Prova) (output bool, err error) {
+func (lm loggingMidleware) Alter(ctx context.Context, prova model.Prova) (err error) {
 	defer func(begin time.Time) {
 		logger := log.With(lm.logger, "method", "Alter")
 		level.Info(logger).Log(
@@ -51,7 +51,7 @@ func (lm loggingMidleware) Alter(ctx context.Context, prova model.Prova) (output
 		)
 	}(time.Now())
 
-	output, err = lm.next.Alter(ctx, prova)
+	err = lm.next.Alter(ctx, prova)
 	return
 }
 
@@ -109,7 +109,7 @@ func (lm loggingMidleware) GetAll(ctx context.Context, page uint32) (output []mo
 	return
 }
 
-func (lm loggingMidleware) Delete(ctx context.Context, id uint64) (output bool, err error) {
+func (lm loggingMidleware) Delete(ctx context.Context, id uint64) (err error) {
 	defer func(begin time.Time) {
 		logger := log.With(lm.logger, "method", "Delete")
 		level.Info(logger).Log(
@@ -121,11 +121,11 @@ func (lm loggingMidleware) Delete(ctx context.Context, id uint64) (output bool, 
 		)
 	}(time.Now())
 
-	output, err = lm.next.Delete(ctx, id)
+	err = lm.next.Delete(ctx, id)
 	return
 }
 
-func (lm loggingMidleware) StatusService(ctx context.Context) (output bool, err error) {
+func (lm loggingMidleware) StatusService(ctx context.Context) (err error) {
 	defer func(begin time.Time) {
 		logger := log.With(lm.logger, "method", "StatusService")
 		level.Info(logger).Log(
@@ -136,6 +136,6 @@ func (lm loggingMidleware) StatusService(ctx context.Context) (output bool, err 
 		)
 	}(time.Now())
 
-	output, err = lm.next.StatusService(ctx)
+	err = lm.next.StatusService(ctx)
 	return
 }

@@ -33,7 +33,7 @@ func NewEndpointSet(s prova.Service) Set {
 func MakeCreateEndpoint(s prova.Service) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
 		req := request.(CreateAlterRequest)
-		_, err := s.Create(ctx, req.Prova)
+		err := s.Create(ctx, req.Prova)
 		if err != nil {
 			return CreateAlterResponse{
 				Status: false,
@@ -51,7 +51,7 @@ func MakeCreateEndpoint(s prova.Service) endpoint.Endpoint {
 func MakeAlterEndpoint(s prova.Service) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
 		req := request.(CreateAlterRequest)
-		_, err := s.Alter(ctx, req.Prova)
+		err := s.Alter(ctx, req.Prova)
 		if err != nil {
 			return CreateAlterResponse{
 				Status: false,
@@ -129,7 +129,7 @@ func MakeGetAllEndpoint(s prova.Service) endpoint.Endpoint {
 func MakeDeleteEndpoint(s prova.Service) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
 		req := request.(DeleteRequest)
-		_, err := s.Delete(ctx, req.ID)
+		err := s.Delete(ctx, req.ID)
 		if err != nil {
 			return DeleteResponse{
 				Status: false,
@@ -146,7 +146,7 @@ func MakeDeleteEndpoint(s prova.Service) endpoint.Endpoint {
 
 func MakeStatusServiceEndpoint(s prova.Service) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
-		_, err := s.StatusService(ctx)
+		err := s.StatusService(ctx)
 		if err != nil {
 			return StatusServiceResponse{
 				Status: false,

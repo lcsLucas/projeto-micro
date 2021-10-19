@@ -43,25 +43,25 @@ func NewInstrumentation(cMethods *prometheus.CounterVec, lMethods LatencyMethods
 	}
 }
 
-func (im instrumentationMiddleware) Create(ctx context.Context, alu model.Aluno) (output bool, err error) {
+func (im instrumentationMiddleware) Create(ctx context.Context, alu model.Aluno) (err error) {
 	defer func(begin time.Time) {
 		im.countMethods.WithLabelValues("total").Inc()
 		im.countMethods.WithLabelValues("create").Inc()
 		im.latencyMethods.LatCreate.Observe(time.Since(begin).Seconds())
 	}(time.Now())
 
-	output, err = im.next.Create(ctx, alu)
+	err = im.next.Create(ctx, alu)
 	return
 }
 
-func (im instrumentationMiddleware) Alter(ctx context.Context, alu model.Aluno) (output bool, err error) {
+func (im instrumentationMiddleware) Alter(ctx context.Context, alu model.Aluno) (err error) {
 	defer func(begin time.Time) {
 		im.countMethods.WithLabelValues("total").Inc()
 		im.countMethods.WithLabelValues("alter").Inc()
 		im.latencyMethods.LatAlter.Observe(time.Since(begin).Seconds())
 	}(time.Now())
 
-	output, err = im.next.Alter(ctx, alu)
+	err = im.next.Alter(ctx, alu)
 	return
 }
 
@@ -87,24 +87,24 @@ func (im instrumentationMiddleware) GetAll(ctx context.Context, page uint32) (ou
 	return
 }
 
-func (im instrumentationMiddleware) Delete(ctx context.Context, ra string) (output bool, err error) {
+func (im instrumentationMiddleware) Delete(ctx context.Context, ra string) (err error) {
 	defer func(begin time.Time) {
 		im.countMethods.WithLabelValues("total").Inc()
 		im.countMethods.WithLabelValues("delete").Inc()
 		im.latencyMethods.LatDelete.Observe(time.Since(begin).Seconds())
 	}(time.Now())
 
-	output, err = im.next.Delete(ctx, ra)
+	err = im.next.Delete(ctx, ra)
 	return
 }
 
-func (im instrumentationMiddleware) StatusService(ctx context.Context) (output bool, err error) {
+func (im instrumentationMiddleware) StatusService(ctx context.Context) (err error) {
 	defer func(begin time.Time) {
 		im.countMethods.WithLabelValues("total").Inc()
 		im.countMethods.WithLabelValues("statusService").Inc()
 		im.latencyMethods.LatStatusService.Observe(time.Since(begin).Seconds())
 	}(time.Now())
 
-	output, err = im.next.StatusService(ctx)
+	err = im.next.StatusService(ctx)
 	return
 }

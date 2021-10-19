@@ -18,12 +18,12 @@ func NewService(rep model.Repository) Service {
 	}
 }
 
-func (e exercicioService) Create(ctx context.Context, exe model.Exercicio) (bool, error) {
-	return false, errors.New("not implemented")
+func (e exercicioService) Create(ctx context.Context, exe model.Exercicio) error {
+	return errors.New("not implemented")
 }
 
-func (e exercicioService) Alter(ctx context.Context, exe model.Exercicio) (bool, error) {
-	return false, errors.New("not implemented")
+func (e exercicioService) Alter(ctx context.Context, exe model.Exercicio) error {
+	return errors.New("not implemented")
 }
 
 func (e exercicioService) Get(ctx context.Context, id uint64) (model.Exercicio, error) {
@@ -40,10 +40,10 @@ func (e exercicioService) GetSomes(ctx context.Context, ids []uint64) ([]model.E
 	return exeRes, nil
 }
 
-func (e exercicioService) Delete(ctx context.Context, id uint64) (bool, error) {
-	return false, errors.New("not implemented")
+func (e exercicioService) Delete(ctx context.Context, id uint64) error {
+	return errors.New("not implemented")
 }
 
-func (e exercicioService) StatusService(ctx context.Context) (bool, error) {
-	return true, nil
+func (e exercicioService) StatusService(ctx context.Context) error {
+	return nil
 }
