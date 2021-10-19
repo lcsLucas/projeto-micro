@@ -19,7 +19,7 @@
     - Abrir uma janela do terminal na pasta do programa e executar o comando:
         1. docker-compose up
 
-# Como testar o funcionanmento
+# Testando endpoints dos serviços
     - http://localhost:9000/alunos/status
     - http://localhost:9000/exercicios/status
     - http://localhost:9000/provas/status
