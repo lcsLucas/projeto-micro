@@ -16,9 +16,8 @@
     - Docker instalado, junto com o docker-compose
 
 # Como rodar o projeto
-    - Abrir uma janela do terminal na pasta do programa e executar os seguintes comandos (um por vez):
-        1. docker build --no-cache -t dependencies -f ./Dockerfile.dependencies .
-        2. docker-compose up --force-recreate --no-deps --build
+    - Abrir uma janela do terminal na pasta do programa e executar o comando:
+        1. docker-compose up
 
 # Como testar o funcionanmento
     - http://localhost:9000/alunos/status
