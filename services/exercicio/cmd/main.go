@@ -102,7 +102,7 @@ func inicializeDB(ctx context.Context) error {
 
 func inicializeCircuitBreaker() {
 	var st gobreaker.Settings
-	st.Name = "Service Aluno"
+	st.Name = "Service Exercicio"
 	st.ReadyToTrip = func(counts gobreaker.Counts) bool {
 		failureRatio := float64(counts.TotalFailures) / float64(counts.Requests)
 		return counts.Requests >= 3 && failureRatio >= 0.6

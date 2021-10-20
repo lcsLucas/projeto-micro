@@ -2,10 +2,12 @@ package endpoints
 
 import (
 	"context"
+	"time"
 
 	"github.com/go-kit/kit/endpoint"
 	"github.com/lcslucas/projeto-micro/services/exercicio"
 	"github.com/lcslucas/projeto-micro/services/exercicio/model"
+	"github.com/lcslucas/projeto-micro/utils"
 )
 
 type Set struct {
@@ -19,12 +21,12 @@ type Set struct {
 
 func NewEndpointSet(s exercicio.Service) Set {
 	return Set{
-		CreateEndpoint:        MakeCreateEndpoint(s),
-		AlterEndpoint:         MakeAlterEndpoint(s),
-		GetEndpoint:           MakeGetEndpoint(s),
-		GetSomesEndpoint:      MakeGetSomesEndpoint(s),
-		DeleteEndpoint:        MakeDeleteEndpoint(s),
-		StatusServiceEndpoint: MakeStatusServiceEndpoint(s),
+		CreateEndpoint:        utils.MakeRateLimit(MakeCreateEndpoint(s), time.Second, 100),
+		AlterEndpoint:         utils.MakeRateLimit(MakeAlterEndpoint(s), time.Second, 100),
+		GetEndpoint:           utils.MakeRateLimit(MakeGetEndpoint(s), time.Second, 100),
+		GetSomesEndpoint:      utils.MakeRateLimit(MakeGetSomesEndpoint(s), time.Second, 100),
+		DeleteEndpoint:        utils.MakeRateLimit(MakeDeleteEndpoint(s), time.Second, 100),
+		StatusServiceEndpoint: utils.MakeRateLimit(MakeStatusServiceEndpoint(s), time.Second, 100),
 	}
 }
 
