@@ -1,6 +1,8 @@
 # Projeto-micro Golang
     Estrutura simples de microsserviços em Golang utilizando a ferramenta Go-kit
 
+![alt text](https://raw.githubusercontent.com/lcsLucas/projeto-micro/master/docs/modelagem-micro.jpeg)
+
 # Tecnologias utilizadas
     - Go
         - Go kit

@@ -50,7 +50,16 @@ func Load() []Route {
 
 func loggingMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		level.Info(Logger).Log("msg", "Requisitando...", "host", r.Host, "uri", r.RequestURI, "method", r.Method)
+		level.Info(Logger).Log(
+			"msg", "Solicitando recurso...",
+			"host", r.Host,
+			"uri", r.RequestURI,
+			"method", r.Method,
+			"remote_addr", r.RemoteAddr,
+			"content_length", r.ContentLength,
+			"user_agent", r.UserAgent(),
+			"status", r.Response.Status,
+		)
 		// Call the next handler, which can be another middleware in the chain, or the final handler.
 		next.ServeHTTP(w, r)
 	})
